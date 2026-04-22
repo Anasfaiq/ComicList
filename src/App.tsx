@@ -3,20 +3,20 @@ import { supabase } from "./lib/supabaseClient";
 import Dashboard from "./components/Dashboard";
 import Auth from "./components/Auth";
 import Navbar from "./components/Navbar";
+import HomePage from "./components/HomePage";
 import "./App.css";
 
 const App = () => {
-  // bikin session
-  const [session, setSession] = useState<any>(null)
-  const [showAuth, setShowAuth] = useState(false)
+  const [session, setSession] = useState<any>(null);
+  const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
-    // cek status pas aplikasi pertama kali dibuka
+    // Cek session pas pertama kali buka
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
 
-    // pantau perubahan (login/logout)
+    // Pantau perubahan auth (login / logout)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -26,17 +26,21 @@ const App = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Kalau udah login → Dashboard
   if (session) {
     return <Dashboard session={session} />;
   }
 
+  // Kalau klik Log In / Sign Up → halaman Auth
   if (showAuth) {
     return <Auth onBack={() => setShowAuth(false)} />;
   }
+
+  // Default → Landing page (bisa dilihat tanpa login)
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50 px-5 sm:px-10 md:px-20 lg:px-40">
       <Navbar onAuthClick={() => setShowAuth(true)} />
-      {/* Isi konten landing page lu lainnya */}
+      <HomePage />
     </div>
   );
 };
