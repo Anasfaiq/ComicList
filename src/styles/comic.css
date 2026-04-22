@@ -1,0 +1,176 @@
+/* Comic Grid Responsive grid tanpa Tailwind — pure CSS media queries*/
+
+.comic-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+}
+
+/* Tablet */
+@media (min-width: 640px) {
+  .comic-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .comic-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Comic Card  */
+
+.comic-card {
+  cursor: pointer;
+  width: 100%;
+  min-width: 0; /* penting biar gak overflow di grid */
+}
+
+.comic-card-cover {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background-color: #f1f5f9;
+  width: 100%;
+  aspect-ratio: 2 / 3; /* portrait — ratio cover manga */
+}
+
+.comic-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.comic-card:hover .comic-card-cover img {
+  transform: scale(1.05);
+}
+
+.comic-card-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.25rem;
+  line-height: 1.4;
+}
+
+.comic-card-info {
+  margin-top: 0.5rem;
+  padding: 0 0.125rem;
+}
+
+.comic-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  margin: 0 0 0.125rem;
+}
+
+.comic-card-author {
+  font-size: 0.75rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 0 0.125rem;
+}
+
+.comic-card-score {
+  font-size: 0.75rem;
+  color: #f59e0b;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Skeleton Card  */
+
+.skeleton-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.skeleton-cover {
+  border-radius: 0.75rem;
+  background-color: #e2e8f0;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-line {
+  background-color: #e2e8f0;
+  border-radius: 0.25rem;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  margin-top: 0.5rem;
+}
+
+.skeleton-line-title {
+  height: 0.875rem;
+  width: 75%;
+}
+
+.skeleton-line-sub {
+  height: 0.75rem;
+  width: 50%;
+  margin-top: 0.25rem;
+  opacity: 0.7;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Filter Tabs */
+
+.tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  line-height: 1;
+}
+
+.tab-btn:hover:not(.tab-btn--active) {
+  background: #f8fafc;
+}
+
+.tab-btn--active {
+  background: #0f172a;
+  color: #fff;
+  border-color: #0f172a;
+}
