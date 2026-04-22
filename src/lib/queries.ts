@@ -1,6 +1,4 @@
-// Field Fragment
-// Field ini di-reuse di semua query supaya konsisten
-
+// Shared Fields
 const MEDIA_FIELDS = `
   id
   title { romaji english }
@@ -11,14 +9,10 @@ const MEDIA_FIELDS = `
   staff(perPage: 5) {
     edges {
       role
-      node {
-        name { full }
-      }
+      node { name { full } }
     }
   }
 `;
-
-// Query Builders
 
 const buildPageQuery = (sort: string, extraFilters = "") => `
   query {
@@ -28,35 +22,62 @@ const buildPageQuery = (sort: string, extraFilters = "") => `
         type: MANGA
         ${extraFilters}
         isAdult: false
-      ) {
-        ${MEDIA_FIELDS}
-      }
+      ) { ${MEDIA_FIELDS} }
     }
   }
 `;
 
-// Exported Queries
-
+// Tab Queries
 export const TRENDING_QUERY = buildPageQuery("TRENDING_DESC");
-
 export const TOP_RATED_QUERY = buildPageQuery("SCORE_DESC");
-
-// Filter by country KR = Korea (Manhwa)
 export const NEW_MANHWA_QUERY = buildPageQuery(
   "START_DATE_DESC",
   "countryOfOrigin: KR",
 );
-
-// Filter by country JP = Japan (Manga)
 export const POPULAR_MANGA_QUERY = buildPageQuery(
   "POPULARITY_DESC",
   "countryOfOrigin: JP",
 );
 
-// Map tab ID ke query string-nya
 export const QUERIES_BY_TAB: Record<string, string> = {
   trending: TRENDING_QUERY,
   topRated: TOP_RATED_QUERY,
   newManhwa: NEW_MANHWA_QUERY,
   popularManga: POPULAR_MANGA_QUERY,
 };
+
+// Search Query
+export const SEARCH_QUERY = `
+  query ($search: String) {
+    Page(page: 1, perPage: 8) {
+      media(search: $search, type: MANGA, isAdult: false) {
+        id
+        title { romaji english }
+        coverImage { large }
+        countryOfOrigin
+      }
+    }
+  }
+`;
+
+// Detail Query
+export const DETAIL_QUERY = `
+  query ($id: Int) {
+    Media(id: $id, type: MANGA) {
+      id
+      title { romaji english }
+      coverImage { large extraLarge }
+      averageScore
+      countryOfOrigin
+      description(asHtml: false)
+      status
+      genres
+      staff(perPage: 10) {
+        edges {
+          role
+          node { name { full } }
+        }
+      }
+    }
+  }
+`;
