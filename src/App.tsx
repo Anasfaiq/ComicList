@@ -1,46 +1,79 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
-import Dashboard from "./components/Dashboard";
+import type { Page } from "./types";
 import Auth from "./components/Auth";
 import Navbar from "./components/Navbar";
 import HomePage from "./components/HomePage";
+import Dashboard from "./components/Dashboard";
+import ComicDetail from "./components/ComicDetail";
 import "./App.css";
 
 const App = () => {
   const [session, setSession] = useState<any>(null);
-  const [showAuth, setShowAuth] = useState(false);
+  const [currentPage, setCurrentPage] = useState<Page>("home");
+  const [selectedComicId, setSelectedComicId] = useState<number | null>(null);
+  const currentPageRef = useRef<Page>("home");
+
+  const navigate = (page: Page, comicId?: number) => {
+    setCurrentPage(page);
+    currentPageRef.current = page;
+    if (comicId !== undefined) setSelectedComicId(comicId);
+    // Scroll ke atas setiap pindah halaman
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   useEffect(() => {
-    // Cek session pas pertama kali buka
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
 
-    // Pantau perubahan auth (login / logout)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      // Kalau logout saat di dashboard → balik ke home
+      if (!session && currentPageRef.current === "dashboard") {
+        navigate("home");
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  // Kalau udah login → Dashboard
-  if (session) {
-    return <Dashboard session={session} />;
+  // Auth page — full screen, tanpa navbar
+  if (currentPage === "auth") {
+    return <Auth onBack={() => navigate("home")} />;
   }
 
-  // Kalau klik Log In / Sign Up → halaman Auth
-  if (showAuth) {
-    return <Auth onBack={() => setShowAuth(false)} />;
-  }
-
-  // Default → Landing page (bisa dilihat tanpa login)
   return (
-    <div className="min-h-screen bg-slate-50 px-5 sm:px-10 md:px-20 lg:px-40">
-      <Navbar onAuthClick={() => setShowAuth(true)} />
-      <HomePage />
+    <div className="min-h-screen bg-slate-50">
+      <Navbar session={session} currentPage={currentPage} navigate={navigate} />
+
+      {currentPage === "home" && <HomePage navigate={navigate} />}
+
+      {currentPage === "detail" && selectedComicId && (
+        <ComicDetail
+          comicId={selectedComicId}
+          session={session}
+          navigate={navigate}
+        />
+      )}
+
+      {currentPage === "dashboard" && session && (
+        <Dashboard session={session} navigate={navigate} />
+      )}
+
+      {currentPage === "dashboard" && !session && (
+        <div className="text-center py-20">
+          <p className="text-slate-500 mb-4">Sesi kamu udah habis.</p>
+          <button
+            onClick={() => navigate("auth")}
+            className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold"
+          >
+            Log In
+          </button>
+        </div>
+      )}
     </div>
   );
 };
