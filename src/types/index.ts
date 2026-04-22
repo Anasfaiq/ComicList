@@ -1,37 +1,51 @@
 // Navigation
+export type Page = "home" | "dashboard" | "auth" | "detail";
 
-export type Page = "home" | "dashboard" | "auth";
-export type NavigateFn = (page: Page) => void;
+// navigate("detail", 123) — comicId wajib kalau ke detail
+export type NavigateFn = (page: Page, comicId?: number) => void;
 
-// AniList Data Types
-
+// AniList Types
 export interface StaffEdge {
   role: string;
-  node: {
-    name: { full: string };
-  };
+  node: { name: { full: string } };
 }
 
 export interface Comic {
   id: number;
-  title: {
-    romaji: string;
-    english: string | null;
-  };
-  coverImage: {
-    large: string;
-  };
+  title: { romaji: string; english: string | null };
+  coverImage: { large: string };
   averageScore: number | null;
   countryOfOrigin: string;
   description: string | null;
-  staff: {
-    edges: StaffEdge[];
-  };
+  staff: { edges: StaffEdge[] };
+}
+
+export interface ComicDetail extends Comic {
+  coverImage: { large: string; extraLarge: string };
+  status: string | null;
+  genres: string[];
 }
 
 export type TabId = "trending" | "topRated" | "newManhwa" | "popularManga";
-
 export interface Tab {
   id: TabId;
   label: string;
+}
+
+// Supabase Types
+export interface Profile {
+  id: string;
+  username: string;
+  avatar_url: string | null;
+}
+
+export interface Comment {
+  id: string;
+  content: string;
+  created_at: string;
+  profiles: Profile;
+}
+
+export interface RatingRow {
+  score: number;
 }
