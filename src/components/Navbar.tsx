@@ -18,8 +18,52 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  // ── Search debounce ────────────────────────────────────────────────────────
+  // Fetch data profile untuk ambil avatar terbaru
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    // Fungsi ambil avatar awal
+    const getAvatar = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", session.user.id)
+        .single();
+
+      if (data?.avatar_url) {
+        setAvatarUrl(data.avatar_url);
+      }
+    };
+
+    getAvatar();
+
+    // Setup Realtime Listener
+    const channel = supabase
+      .channel(`public:profiles:id=eq.${session.user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "profiles",
+          filter: `id=eq.${session.user.id}`,
+        },
+        (payload) => {
+          if (payload.new) {
+            setAvatarUrl(payload.new.avatar_url);
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session]);
+
+  // Search debounce
   useEffect(() => {
     if (query.length < 2) {
       setResults([]);
@@ -39,7 +83,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     return () => clearTimeout(timer);
   }, [query]);
 
-  // ── Close search on outside click ─────────────────────────────────────────
+  // Close search on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -51,7 +95,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // ── Close avatar dropdown on outside click ────────────────────────────────
+  // Close avatar dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -135,6 +179,29 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
           <path d="M3 6l0 13" />
           <path d="M12 6l0 13" />
           <path d="M21 6l0 13" />
+        </svg>
+      ),
+    },
+    {
+      label: "Profile",
+      page: "profile",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={24}
+          height={24}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="icon icon-tabler icons-tabler-outline icon-tabler-user-circle"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+          <path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+          <path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
         </svg>
       ),
     },
@@ -249,46 +316,75 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
             <button
               onClick={() => setShowDropdown((v) => !v)}
               title={username}
-              className={`w-9 h-9 rounded-full bg-slate-900 text-white font-bold text-sm
-                         flex items-center justify-center border-2 transition
-                         ${showDropdown ? "border-indigo-400" : "border-transparent"}`}
+              className={`w-9 h-9 rounded-full overflow-hidden bg-slate-900 text-white font-bold text-sm
+                   flex items-center justify-center border-2 transition
+                   ${showDropdown ? "border-indigo-400" : "border-transparent"}`}
             >
-              {initial}
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                initial
+              )}
             </button>
 
             {showDropdown && (
               <div
                 className="absolute right-0 top-[calc(100%+0.5rem)] w-52 bg-white
-                              rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50"
+                     rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50"
               >
                 {/* User info */}
-                <div className="px-4 py-3 border-b border-slate-100">
-                  <p className="text-xs text-slate-400 mb-0.5">Logged in as</p>
-                  <p className="text-sm font-semibold text-slate-800 truncate">
-                    {username}
-                  </p>
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 shrink-0">
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-slate-500">
+                        {initial}
+                      </div>
+                    )}
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                      Logged in
+                    </p>
+                    <p className="text-sm font-semibold text-slate-800 truncate">
+                      {username}
+                    </p>
+                  </div>
                 </div>
 
-                {MENU_ITEMS.map(({ label, page, icon }) => (
-                  <button
-                    key={page}
-                    onClick={() => go(page)}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition hover:bg-slate-100 flex items-center gap-2
-                               ${currentPage === page ? "text-slate-950 bg-slate-100 font-semibold" : "text-slate-600"}`}
-                  >
-                    <span className="flex items-center">{icon}</span>
-                    <span>{label}</span>
-                  </button>
-                ))}
+                {/* Menu Items */}
+                <div className="py-1">
+                  {MENU_ITEMS.map(({ label, page, icon }) => (
+                    <button
+                      key={page}
+                      onClick={() => go(page)}
+                      className={`w-full text-left px-4 py-2 text-sm transition hover:bg-slate-100 flex items-center gap-3
+                           ${currentPage === page ? "text-indigo-600 bg-indigo-50 font-semibold" : "text-slate-600"}`}
+                    >
+                      <span className="flex items-center opacity-70">
+                        {icon}
+                      </span>
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
 
                 <div className="h-px bg-slate-100" />
 
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition flex items-center gap-2"
+                  className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition flex items-center gap-3"
                 >
-                  <span>{logoutIcon}</span>
-                  <span> Log Out</span>
+                  <span className="opacity-70">{logoutIcon}</span>
+                  <span className="font-medium"> Log Out</span>
                 </button>
               </div>
             )}
@@ -304,7 +400,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
             <button
               onClick={() => navigate("auth")}
               className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold
-                         hover:bg-slate-700 transition"
+                   hover:bg-slate-700 transition"
             >
               Sign Up
             </button>
