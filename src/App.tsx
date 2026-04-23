@@ -18,7 +18,6 @@ const App = () => {
     setCurrentPage(page);
     currentPageRef.current = page;
     if (comicId !== undefined) setSelectedComicId(comicId);
-    // Scroll ke atas setiap pindah halaman
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -31,7 +30,6 @@ const App = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      // Kalau logout saat di dashboard → balik ke home
       if (!session && currentPageRef.current === "dashboard") {
         navigate("home");
       }
@@ -40,7 +38,6 @@ const App = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Auth page — full screen, tanpa navbar
   if (currentPage === "auth") {
     return <Auth onBack={() => navigate("home")} />;
   }
@@ -49,7 +46,9 @@ const App = () => {
     <div className="min-h-screen bg-slate-50">
       <Navbar session={session} currentPage={currentPage} navigate={navigate} />
 
-      {currentPage === "home" && <HomePage navigate={navigate} />}
+      {currentPage === "home" && (
+        <HomePage navigate={navigate} session={session} />
+      )}
 
       {currentPage === "detail" && selectedComicId && (
         <ComicDetail
