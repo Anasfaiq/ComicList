@@ -43,7 +43,16 @@ export interface Comment {
   id: string;
   content: string;
   created_at: string;
-  profiles: Profile;
+
+  parent_id?: string | null;
+
+  profiles: {
+    id: string;
+    username: string;
+    avatar_url: string | null;
+  };
+
+  like_count?: number;
 }
 
 export interface RatingRow {
