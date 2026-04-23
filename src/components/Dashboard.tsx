@@ -59,7 +59,7 @@ const Dashboard = ({ session, navigate }: DashboardProps) => {
             Reading List
           </h2>
           <p className="text-slate-500 text-sm">
-            Hai, {username}! Ini koleksi komik lu.
+            Hai, {username}! Ini koleksi komik mu.
           </p>
         </div>
         <button
@@ -79,7 +79,7 @@ const Dashboard = ({ session, navigate }: DashboardProps) => {
         <div className="bg-white border border-slate-200 rounded-2xl p-16 text-center">
           <p className="text-5xl mb-4">📚</p>
           <p className="font-semibold text-slate-700 mb-2">
-            Belum ada komik di reading list lu
+            Belum ada komik di reading list mu
           </p>
           <p className="text-slate-400 text-sm mb-6">
             Tambah manga atau manhwa favorit lu dari halaman utama!
