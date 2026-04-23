@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar";
 import HomePage from "./components/HomePage";
 import Dashboard from "./components/Dashboard";
 import ComicDetail from "./components/ComicDetail";
+import Profile from "./components/Profile";
 import "./App.css";
 
 const App = () => {
@@ -60,6 +61,10 @@ const App = () => {
 
       {currentPage === "dashboard" && session && (
         <Dashboard session={session} navigate={navigate} />
+      )}
+
+      {currentPage === "profile" && session && (
+        <Profile session={session} navigate={navigate} />
       )}
 
       {currentPage === "dashboard" && !session && (
