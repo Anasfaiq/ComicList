@@ -1,11 +1,12 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { fetchFromAniList } from "../lib/anilist";
 import { QUERIES_BY_TAB } from "../lib/queries";
 import { getAuthor, getBadge, formatScore, getTitle } from "../lib/utils";
 import type { Comic, TabId, Tab, NavigateFn } from "../types";
+import AddComicModal from "./AddComicModal";
 import "../styles/comic.css";
 
-// Tabs Config
+// Tabs
 const TABS: Tab[] = [
   { id: "trending", label: "Trending Today" },
   { id: "topRated", label: "Top Rated" },
@@ -85,6 +86,48 @@ const TAB_ICONS: Record<TabId, React.ReactNode> = {
   ),
 };
 
+const sidebarIcons: Record<string, React.ReactNode> = {
+  thropy: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="icon icon-tabler icons-tabler-outline icon-tabler-trophy"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M8 21l8 0" />
+      <path d="M12 17l0 4" />
+      <path d="M7 4l10 0" />
+      <path d="M17 4v8a5 5 0 0 1 -10 0v-8" />
+      <path d="M3 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M17 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+    </svg>
+  ),
+  bubble: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="icon icon-tabler icons-tabler-outline icon-tabler-message-circle"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1" />
+    </svg>
+  ),
+};
+
 // Skeleton Card
 const SkeletonCard = () => (
   <div className="skeleton-card">
@@ -145,12 +188,18 @@ const RECENT_REVIEWS = [
   { user: "ActionFan", title: "One Punch Man", score: "9.0/10" },
 ];
 
-// Main Component
-const HomePage = ({ navigate }: { navigate: NavigateFn }) => {
+// Main
+interface HomePageProps {
+  navigate: NavigateFn;
+  session?: any;
+}
+
+const HomePage = ({ navigate, session }: HomePageProps) => {
   const [activeTab, setActiveTab] = useState<TabId>("trending");
   const [comics, setComics] = useState<Comic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -162,106 +211,123 @@ const HomePage = ({ navigate }: { navigate: NavigateFn }) => {
   }, [activeTab]);
 
   return (
-    <div className="max-w-screen-xl mx-auto px-6 py-6 flex gap-6">
-      {/* ── Main Content ── */}
-      <div className="flex-1 min-w-0">
-        {/* Filter Tabs */}
-        <div className="tab-bar">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`tab-btn${activeTab === tab.id ? " tab-btn--active" : ""}`}
-            >
-              <span>{TAB_ICONS[tab.id]}</span>
-              {tab.label}
-            </button>
-          ))}
+    <>
+      <div className="max-w-screen-xl mx-auto px-6 py-6 flex gap-6">
+        {/* Main Content  */}
+        <div className="flex-1 min-w-0">
+          {/* Filter Tabs */}
+          <div className="tab-bar">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`tab-btn${activeTab === tab.id ? " tab-btn--active" : ""}`}
+              >
+                <span>{TAB_ICONS[tab.id]}</span>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="text-center py-16 text-slate-400">
+              <p>{error}</p>
+            </div>
+          )}
+
+          {/* Comic Grid */}
+          {!error && (
+            <div className="comic-grid">
+              {loading
+                ? Array.from({ length: 8 }).map((_, i) => (
+                    <SkeletonCard key={i} />
+                  ))
+                : comics.map((comic) => (
+                    <ComicCard
+                      key={comic.id}
+                      comic={comic}
+                      onClick={() => navigate("detail", comic.id)}
+                    />
+                  ))}
+            </div>
+          )}
         </div>
 
-        {/* Error */}
-        {error && (
-          <div className="text-center py-16 text-slate-400">
-            <p className="text-3xl mb-2">😵</p>
-            <p>{error}</p>
+        {/* Sidebar */}
+        <aside className="w-64 shrink-0 hidden lg:flex flex-col gap-4">
+          {/* Can't find a title? */}
+          <div className="bg-slate-800 text-white rounded-2xl p-5">
+            <div className="text-2xl mb-3">+</div>
+            <h3 className="font-bold text-base mb-1">Can't find a title?</h3>
+            <p className="text-slate-300 text-sm mb-4 leading-relaxed">
+              Help grow our database by adding new manga, manhwa, or manhua.
+            </p>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="w-full bg-white text-slate-900 font-semibold py-2 rounded-lg text-sm
+                         hover:bg-slate-100 transition"
+            >
+              Add to Database
+            </button>
           </div>
-        )}
 
-        {/* Comic Grid — responsive via comic.css */}
-        {!error && (
-          <div className="comic-grid">
-            {loading
-              ? Array.from({ length: 8 }).map((_, i) => (
-                  <SkeletonCard key={i} />
-                ))
-              : comics.map((comic) => (
-                  <ComicCard
-                    key={comic.id}
-                    comic={comic}
-                    onClick={() => navigate("detail", comic.id)}
-                  />
-                ))}
+          {/* Top Contributors */}
+          <div className="bg-white border border-slate-100 rounded-2xl p-5">
+            <h3 className="font-bold text-slate-800 mb-4 text-sm flex items-center gap-2">
+              {sidebarIcons.thropy}
+              <span>Top Contributors</span>
+            </h3>
+            <div className="space-y-3">
+              {TOP_CONTRIBUTORS.map((c) => (
+                <div key={c.rank} className="flex items-start gap-3">
+                  <span className="text-xs text-slate-400 pt-0.5 w-5">
+                    #{c.rank}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-700 leading-tight">
+                      {c.name}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      {c.reviews} reviews
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        )}
+
+          {/* Recent Reviews */}
+          <div className="bg-white border border-slate-100 rounded-2xl p-5">
+            <h3 className="font-bold text-slate-800 mb-4 text-sm flex items-center gap-2">
+              {sidebarIcons.bubble}
+              <span>Recent Reviews</span>
+            </h3>
+            <div className="space-y-4">
+              {RECENT_REVIEWS.map((r, i) => (
+                <div key={i}>
+                  <p className="text-xs text-slate-400 mb-0.5">
+                    {r.user} reviewed
+                  </p>
+                  <p className="text-sm font-semibold text-slate-700">
+                    {r.title}
+                  </p>
+                  <p className="text-xs text-amber-500 font-bold">{r.score}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
       </div>
 
-      {/* ── Sidebar ── */}
-      <aside className="w-64 shrink-0 hidden lg:flex flex-col gap-4">
-        {/* Can't find a title? */}
-        <div className="bg-slate-800 text-white rounded-2xl p-5">
-          <div className="text-2xl mb-3">+</div>
-          <h3 className="font-bold text-base mb-1">Can't find a title?</h3>
-          <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-            Help grow our database by adding new manga, manhwa, or manhua.
-          </p>
-          <button className="w-full bg-white text-slate-900 font-semibold py-2 rounded-lg text-sm hover:bg-slate-100 transition">
-            Add to Database
-          </button>
-        </div>
-
-        {/* Top Contributors */}
-        <div className="bg-white border border-slate-100 rounded-2xl p-5">
-          <h3 className="font-bold text-slate-800 mb-4 text-sm">
-            🏆 Top Contributors
-          </h3>
-          <div className="space-y-3">
-            {TOP_CONTRIBUTORS.map((c) => (
-              <div key={c.rank} className="flex items-start gap-3">
-                <span className="text-xs text-slate-400 pt-0.5 w-5">
-                  #{c.rank}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-slate-700 leading-tight">
-                    {c.name}
-                  </p>
-                  <p className="text-xs text-slate-400">{c.reviews} reviews</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Reviews */}
-        <div className="bg-white border border-slate-100 rounded-2xl p-5">
-          <h3 className="font-bold text-slate-800 mb-4 text-sm">
-            💬 Recent Reviews
-          </h3>
-          <div className="space-y-4">
-            {RECENT_REVIEWS.map((r, i) => (
-              <div key={i}>
-                <p className="text-xs text-slate-400 mb-0.5">
-                  {r.user} reviewed
-                </p>
-                <p className="text-sm font-semibold text-slate-700">
-                  {r.title}
-                </p>
-                <p className="text-xs text-amber-500 font-bold">{r.score}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </aside>
-    </div>
+      {/* Add Comic Modal */}
+      {showAddModal && (
+        <AddComicModal
+          session={session}
+          onClose={() => setShowAddModal(false)}
+        />
+      )}
+    </>
   );
 };
 
