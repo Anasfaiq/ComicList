@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabaseClient";
 import { fetchFromAniList } from "../lib/anilist";
 import { SEARCH_QUERY } from "../lib/queries";
 import type { NavigateFn, Page } from "../types";
+import logo from "../assets/ComicList-logoFix.svg";
 
 interface NavbarProps {
   session: any;
@@ -163,10 +164,11 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     <nav className="flex items-center gap-6 px-6 md:px-15 lg:px-30 xl:px-60 py-3 border-b border-slate-100 bg-white sticky top-0 z-50">
       {/* Logo */}
       <p
-        className="font-heading text-xl font-bold shrink-0 cursor-pointer"
+        className="font-heading text-xl font-bold shrink-0 cursor-pointer flex items-center gap-2"
         onClick={() => navigate("home")}
       >
-        ComicList
+        <img src={logo} alt="ComicList Logo" className="h-16 w-auto" />
+        <span>ComicList</span>
       </p>
 
       {/* Search */}
