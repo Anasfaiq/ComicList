@@ -1,5 +1,5 @@
 // Navigation
-export type Page = "home" | "dashboard" | "auth" | "detail";
+export type Page = "home" | "dashboard" | "auth" | "detail" | "profile";
 
 // navigate("detail", 123) — comicId wajib kalau ke detail
 export type NavigateFn = (page: Page, comicId?: number) => void;
