@@ -5,14 +5,12 @@ import { DETAIL_QUERY } from "../lib/queries";
 import { getAuthor, cleanDescription } from "../lib/utils";
 import type { NavigateFn, Comment, RatingRow } from "../types";
 
-// Props 
 interface ComicDetailProps {
-  comicId: number; // AniList ID
+  comicId: number;
   session: any;
   navigate: NavigateFn;
 }
 
-// Helpers 
 const STATUS_COLORS: Record<string, string> = {
   RELEASING: "text-green-600 bg-green-50 border-green-200",
   FINISHED: "text-blue-600 bg-blue-50 border-blue-200",
@@ -22,9 +20,9 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const TYPE_LABELS: Record<string, string> = {
-  KR: "MANHWA",
-  CN: "MANHUA",
-  JP: "MANGA",
+  KR: "manhwa",
+  CN: "manhua",
+  JP: "manga",
 };
 const TYPE_COLORS: Record<string, string> = {
   KR: "text-green-600 bg-green-50 border-green-200",
@@ -32,52 +30,98 @@ const TYPE_COLORS: Record<string, string> = {
   JP: "text-blue-600 bg-blue-50 border-blue-200",
 };
 
+// Definisikan tipe props biar dapet autocomplete (Opsional kalau pake TS)
+interface IconProps {
+  size?: number;
+  className?: string;
+}
+
+const ICONS = [
+  {
+    name: "like",
+    icon: ({ size = 24, className = "" }: IconProps) => (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={`icon icon-tabler icons-tabler-outline icon-tabler-thumb-up ${className}`}
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3" />
+      </svg>
+    ),
+  },
+  {
+    name: "comment",
+    icon: ({ size = 24, className = "" }: IconProps) => (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={`icon icon-tabler icons-tabler-outline icon-tabler-message-plus ${className}`}
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M8 9h8" />
+        <path d="M8 13h6" />
+        <path d="M12.01 18.594l-4.01 2.406v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v5.5" />
+        <path d="M16 19h6" />
+        <path d="M19 16v6" />
+      </svg>
+    ),
+  },
+];
+
 const timeAgo = (dateStr: string) => {
-  const d = new Date(dateStr);
-  const diff = Math.floor((Date.now() - d.getTime()) / 1000);
-  if (diff < 60) return `${diff} seconds ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
-  return `${Math.floor(diff / 604800)} weeks ago`;
+  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return `${Math.floor(diff / 604800)}w ago`;
 };
 
-// Star Rating Component 
+// Star Rating
 const StarRating = ({
   value,
   hover,
   onHover,
   onClick,
-  readonly = false,
 }: {
   value: number;
   hover: number;
   onHover: (n: number) => void;
   onClick: (n: number) => void;
-  readonly?: boolean;
 }) => (
   <div className="flex gap-0.5">
-    {Array.from({ length: 10 }).map((_, i) => {
-      const filled = (hover || value) >= i + 1;
-      return (
-        <button
-          key={i}
-          disabled={readonly}
-          onMouseEnter={() => !readonly && onHover(i + 1)}
-          onMouseLeave={() => !readonly && onHover(0)}
-          onClick={() => !readonly && onClick(i + 1)}
-          className={`text-xl transition-colors ${readonly ? "cursor-default" : "cursor-pointer"}
-                     ${filled ? "text-amber-400" : "text-slate-200"}`}
-          style={{ background: "none", border: "none", padding: "0 1px" }}
-        >
-          ★
-        </button>
-      );
-    })}
+    {Array.from({ length: 10 }).map((_, i) => (
+      <button
+        key={i}
+        onMouseEnter={() => onHover(i + 1)}
+        onMouseLeave={() => onHover(0)}
+        onClick={() => onClick(i + 1)}
+        className={`text-xl transition-colors cursor-pointer
+                   ${(hover || value) >= i + 1 ? "text-amber-400" : "text-slate-200"}`}
+        style={{ background: "none", border: "none", padding: "0 1px" }}
+      >
+        ★
+      </button>
+    ))}
   </div>
 );
 
-// Rating Bar 
+// Rating Bar
 const RatingBar = ({
   label,
   count,
@@ -104,7 +148,117 @@ const RatingBar = ({
   );
 };
 
-// Main Component 
+const CommentItem = ({
+  comment,
+  replies,
+  onReply,
+  onLike,
+  session,
+}: {
+  comment: Comment;
+  replies: Comment[];
+  onReply: (id: string) => void;
+  onLike: (id: string) => void;
+  session: any;
+}) => {
+  const [showReplies, setShowReplies] = useState(true);
+  const LikeIcon = ICONS.find((i) => i.name === "like")?.icon;
+  const ReplyIcon = ICONS.find((i) => i.name === "comment")?.icon;
+
+  return (
+    <div className="space-y-3">
+      {/* Parent Comment */}
+      <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0 shadow-inner">
+            {comment.profiles?.username?.[0]?.toUpperCase() ?? "?"}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-bold text-slate-800 text-sm">
+                {comment.profiles?.username ?? "Anonymous"}
+              </span>
+              <span className="text-slate-400 text-[11px]">
+                {timeAgo(comment.created_at)}
+              </span>
+            </div>
+            <p className="text-slate-600 text-sm leading-relaxed">
+              {comment.content}
+            </p>
+            <div className="flex items-center gap-4 mt-3">
+              <button
+                onClick={() => onLike(comment.id)}
+                className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 transition"
+              >
+                {LikeIcon && <LikeIcon size={16} className="" />}
+                <span>{comment.like_count}</span>
+              </button>
+              <button
+                onClick={() => onReply(comment.id)}
+                className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 transition"
+              >
+                {ReplyIcon && <ReplyIcon size={16} className="" />}
+                <span>Reply</span>
+              </button>
+              {replies.length > 0 && (
+                <button
+                  onClick={() => setShowReplies(!showReplies)}
+                  className="text-[11px] font-bold text-indigo-500 hover:text-indigo-700 ml-auto"
+                >
+                  {showReplies
+                    ? `Hide Replies`
+                    : `Show ${replies.length} Replies`}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Indented Replies */}
+      {showReplies && replies.length > 0 && (
+        <div className="ml-10 pl-4 border-l-2 border-slate-200 space-y-3">
+          {replies.map((r) => (
+            <div
+              key={r.id}
+              className="bg-slate-50 border border-slate-100 rounded-xl p-3 shadow-sm"
+            >
+              <div className="flex items-start gap-2">
+                <div className="w-7 h-7 rounded-full bg-slate-400 text-white text-[10px] flex items-center justify-center shrink-0">
+                  {r.profiles?.username?.[0]?.toUpperCase() ?? "?"}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="font-bold text-slate-700 text-[11px]">
+                      {r.profiles?.username}
+                    </span>
+                    <span className="text-slate-400 text-[10px]">
+                      {timeAgo(r.created_at)}
+                    </span>
+                  </div>
+                  <p className="text-slate-600 text-xs leading-relaxed">
+                    {r.content}
+                  </p>
+                  <button
+                    onClick={() => onLike(r.id)}
+                    className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-400 hover:text-indigo-600"
+                  >
+                    {LikeIcon && (
+                      <LikeIcon size={14} className="inline-block" />
+                    )}
+                    <span>{r.like_count}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Main
 const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   const [comic, setComic] = useState<any>(null);
   const [supabaseId, setSupabaseId] = useState<string | null>(null);
@@ -117,10 +271,13 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   const [submitting, setSubmitting] = useState(false);
   const [inLibrary, setInLibrary] = useState(false);
   const [libraryLoading, setLibraryLoading] = useState(false);
+  const [replyTo, setReplyTo] = useState<string | null>(null);
 
-  // Fetch AniList + Supabase data 
   useEffect(() => {
     setLoading(true);
+    setUserRating(0);
+    setInLibrary(false);
+
     fetchFromAniList(DETAIL_QUERY, { id: comicId })
       .then(async (data) => {
         setComic(data.Media);
@@ -131,6 +288,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
             loadRatings(id),
             loadComments(id),
             loadUserRating(id),
+            checkLibrary(id),
           ]);
         }
       })
@@ -138,44 +296,51 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       .finally(() => setLoading(false));
   }, [comicId]);
 
-  // Upsert comic to Supabase 
-  const upsertComic = async (aniComic: any): Promise<string | null> => {
-    // Try to find existing
+  // ── Upsert comic ─────────────────────────────────────────────────────────────
+  const upsertComic = async (m: any): Promise<string | null> => {
+    // Try find existing by external_id first
     const { data: existing } = await supabase
       .from("comics")
       .select("id")
-      .eq("external_id", aniComic.id)
+      .eq("external_id", m.id)
       .maybeSingle();
-
     if (existing?.id) return existing.id;
+
+    // Only insert if logged in
     if (!session) return null;
 
-    // Insert
-    const author = getAuthor(aniComic.staff?.edges || []);
-    const typeStr = TYPE_LABELS[aniComic.countryOfOrigin] ?? "MANGA";
     const { data: inserted, error } = await supabase
       .from("comics")
       .insert({
-        title: aniComic.title.english || aniComic.title.romaji,
-        synopsis: cleanDescription(aniComic.description, 500),
-        cover_url: aniComic.coverImage?.large,
-        author,
-        type: typeStr,
-        status: aniComic.status ?? "UNKNOWN",
-        external_id: aniComic.id,
+        title: m.title.english || m.title.romaji,
+        synopsis: cleanDescription(m.description, 500),
+        cover_url: m.coverImage?.large,
+        author: getAuthor(m.staff?.edges || []),
+        type: TYPE_LABELS[m.countryOfOrigin] ?? "MANGA",
+        status: m.status ?? "UNKNOWN",
+        external_id: m.id,
         created_by: session.user.id,
       })
       .select("id")
       .maybeSingle();
 
+    // Handle race condition — another tab inserted first
+    if (error?.code === "23505") {
+      const { data: refetch } = await supabase
+        .from("comics")
+        .select("id")
+        .eq("external_id", m.id)
+        .maybeSingle();
+      return refetch?.id ?? null;
+    }
     if (error) {
-      console.error(error);
+      console.error("upsertComic:", error);
       return null;
     }
     return inserted?.id ?? null;
   };
 
-  // Data loaders 
+  // Loaders
   const loadRatings = async (id: string) => {
     const { data } = await supabase
       .from("ratings")
@@ -184,13 +349,48 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     setRatings(data || []);
   };
 
+  // Two-step: fetch comments then profiles (more reliable than PostgREST join)
   const loadComments = async (id: string) => {
-    const { data } = await supabase
+    const { data: raw, error } = await supabase
       .from("comments")
-      .select("id, content, created_at, profiles:user_id(username, avatar_url)")
+      .select("id, content, created_at, user_id, parent_id")
       .eq("comic_id", id)
       .order("created_at", { ascending: false });
-    setComments((data as unknown as Comment[]) || []);
+
+    if (error || !raw) {
+      setComments([]);
+      return;
+    }
+
+    const { data: likes } = await supabase
+      .from("comment_likes")
+      .select("comment_id");
+
+    const likeMap: Record<string, number> = {};
+    likes?.forEach((l) => {
+      likeMap[l.comment_id] = (likeMap[l.comment_id] || 0) + 1;
+    });
+    const userIds = [...new Set(raw.map((c) => c.user_id))];
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id, username, avatar_url")
+      .in("id", userIds);
+
+    const merged: Comment[] = raw.map((c) => ({
+      id: c.id,
+      content: c.content,
+      created_at: c.created_at,
+      parent_id: c.parent_id,
+
+      profiles: profs?.find((p) => p.id === c.user_id) ?? {
+        id: c.user_id,
+        username: "Anonymous",
+        avatar_url: null,
+      },
+
+      like_count: likeMap[c.id] || 0,
+    }));
+    setComments(merged);
   };
 
   const loadUserRating = async (id: string) => {
@@ -204,29 +404,68 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     if (data) setUserRating(data.score);
   };
 
-  // Actions 
+  const checkLibrary = async (id: string) => {
+    if (!session) return;
+    const { data } = await supabase
+      .from("user_library")
+      .select("id")
+      .eq("user_id", session.user.id)
+      .eq("comic_id", id)
+      .maybeSingle();
+    setInLibrary(!!data);
+  };
+
+  // Actions
+
+  // Ensure comic exists in Supabase sebelum aksi apapun
+  const ensureSupabaseId = async (): Promise<string | null> => {
+    if (supabaseId) return supabaseId;
+    if (!session || !comic) return null;
+    const id = await upsertComic(comic);
+    if (id) setSupabaseId(id);
+    return id;
+  };
+
   const handleRate = async (score: number) => {
     if (!session) {
       navigate("auth");
       return;
     }
-    if (!supabaseId) return;
+    const id = await ensureSupabaseId();
+    if (!id) {
+      alert("Gagal menyimpan, coba lagi.");
+      return;
+    }
 
     const prev = userRating;
     setUserRating(score);
 
-    const { error } = await supabase
+    // Use select → update/insert (safer than upsert with constraint)
+    const { data: existing } = await supabase
       .from("ratings")
-      .upsert(
-        { user_id: session.user.id, comic_id: supabaseId, score },
-        { onConflict: "user_id,comic_id" },
-      );
+      .select("id")
+      .eq("user_id", session.user.id)
+      .eq("comic_id", id)
+      .maybeSingle();
+
+    let error;
+    if (existing) {
+      ({ error } = await supabase
+        .from("ratings")
+        .update({ score })
+        .eq("id", existing.id));
+    } else {
+      ({ error } = await supabase
+        .from("ratings")
+        .insert({ user_id: session.user.id, comic_id: id, score }));
+    }
+
     if (error) {
       setUserRating(prev);
-      alert("Gagal menyimpan rating.");
+      alert("Gagal menyimpan rating: " + error.message);
       return;
     }
-    loadRatings(supabaseId);
+    loadRatings(id);
   };
 
   const handleComment = async () => {
@@ -234,19 +473,69 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       navigate("auth");
       return;
     }
-    if (!supabaseId || !commentText.trim()) return;
+    if (!commentText.trim()) return;
+    const id = await ensureSupabaseId();
+    if (!id) {
+      alert("Gagal menyimpan, coba lagi.");
+      return;
+    }
 
     setSubmitting(true);
     const { error } = await supabase.from("comments").insert({
       user_id: session.user.id,
-      comic_id: supabaseId,
+      comic_id: id,
       content: commentText.trim(),
+      parent_id: replyTo,
     });
     if (!error) {
       setCommentText("");
-      loadComments(supabaseId);
-    }
+      setReplyTo(null);
+      loadComments(id);
+    } else alert("Gagal post review: " + error.message);
     setSubmitting(false);
+  };
+
+  const handleReplyClick = (id: string) => {
+    setReplyTo(id);
+    document.getElementById("review-input")?.focus();
+  };
+
+  const handleLike = async (commentId: string) => {
+    if (!session) return navigate("auth");
+
+    const { data: existing } = await supabase
+      .from("comment_likes")
+      .select("id")
+      .eq("user_id", session.user.id)
+      .eq("comment_id", commentId)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from("comment_likes").delete().eq("id", existing.id);
+
+      // update local state
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === commentId
+            ? { ...c, like_count: Math.max((c.like_count || 1) - 1, 0) }
+            : c,
+        ),
+      );
+    } else {
+      await supabase.from("comment_likes").insert({
+        user_id: session.user.id,
+        comment_id: commentId,
+      });
+
+      // update local state
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === commentId
+            ? { ...c, like_count: (c.like_count || 0) + 1 }
+            : c,
+        ),
+      );
+    }
   };
 
   const handleAddToLibrary = async () => {
@@ -254,15 +543,25 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       navigate("auth");
       return;
     }
+    const id = await ensureSupabaseId();
+    if (!id) {
+      alert("Gagal menyimpan, coba lagi.");
+      return;
+    }
+
     setLibraryLoading(true);
-    // Placeholder — kalau nanti ada user_library table bisa diimplementasi
-    setTimeout(() => {
-      setInLibrary(true);
-      setLibraryLoading(false);
-    }, 600);
+    const { error } = await supabase
+      .from("user_library")
+      .upsert(
+        { user_id: session.user.id, comic_id: id, status: "reading" },
+        { onConflict: "user_id,comic_id" },
+      );
+    if (!error) setInLibrary(true);
+    else alert("Gagal menambah ke library: " + error.message);
+    setLibraryLoading(false);
   };
 
-  // Computed values 
+  // Computed
   const totalVotes = ratings.length;
   const avgScore = totalVotes
     ? (ratings.reduce((s, r) => s + r.score, 0) / totalVotes).toFixed(1)
@@ -275,26 +574,36 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   ratings.forEach((r) => {
     ratingDist[r.score] = (ratingDist[r.score] || 0) + 1;
   });
+  // ── Pisahin parent & reply ──
+  const parentComments = comments.filter((c) => !c.parent_id);
 
-  // Loading state 
-  if (loading) {
+  const replyMap: Record<string, Comment[]> = {};
+
+  comments.forEach((c) => {
+    if (c.parent_id) {
+      if (!replyMap[c.parent_id]) {
+        replyMap[c.parent_id] = [];
+      }
+      replyMap[c.parent_id].push(c);
+    }
+  });
+
+  // Loading
+  if (loading)
     return (
       <div className="max-w-screen-xl mx-auto px-6 py-8 flex gap-8 animate-pulse">
-        <div className="w-72 shrink-0">
+        <div className="w-64 shrink-0">
           <div className="bg-slate-200 rounded-2xl aspect-[2/3]" />
         </div>
         <div className="flex-1 space-y-4 pt-4">
           <div className="h-8 bg-slate-200 rounded w-2/3" />
           <div className="h-4 bg-slate-100 rounded w-1/3" />
           <div className="h-32 bg-slate-100 rounded" />
-          <div className="h-4 bg-slate-100 rounded" />
-          <div className="h-4 bg-slate-100 rounded w-4/5" />
         </div>
       </div>
     );
-  }
 
-  if (!comic) {
+  if (!comic)
     return (
       <div className="text-center py-20 text-slate-400">
         <p className="text-2xl mb-2">😵</p>
@@ -307,7 +616,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
         </button>
       </div>
     );
-  }
 
   const typeLabel = TYPE_LABELS[comic.countryOfOrigin] ?? "MANGA";
   const typeColor = TYPE_COLORS[comic.countryOfOrigin] ?? TYPE_COLORS["JP"];
@@ -316,14 +624,12 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     "text-slate-500 bg-slate-50 border-slate-200";
   const statusLabel =
     comic.status === "RELEASING" ? "ONGOING" : (comic.status ?? "UNKNOWN");
-  const author = getAuthor(comic.staff?.edges || []);
   const description = cleanDescription(comic.description, 800);
   const cover = comic.coverImage?.extraLarge || comic.coverImage?.large;
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-6">
-      {/* Back to Browse */}
+      {/* Back */}
       <button
         onClick={() => navigate("home")}
         className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 mb-6 transition"
@@ -346,7 +652,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       </button>
 
       <div className="flex gap-8 items-start">
-        {/* ── Left Column (Sticky) ── */}
+        {/* ── Left Column ── */}
         <div className="w-64 shrink-0 sticky top-20 space-y-4">
           {/* Cover */}
           <div className="rounded-2xl overflow-hidden shadow-lg">
@@ -374,6 +680,17 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                 <span className="text-amber-500 font-semibold">
                   {userRating}/10
                 </span>
+              </p>
+            )}
+            {!session && (
+              <p className="text-xs text-slate-400 mt-2">
+                <button
+                  onClick={() => navigate("auth")}
+                  className="text-indigo-500 hover:underline"
+                >
+                  Login
+                </button>{" "}
+                untuk rating
               </p>
             )}
           </div>
@@ -419,8 +736,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           <button
             onClick={() => document.getElementById("review-input")?.focus()}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm
-                       font-semibold border border-slate-200 bg-white text-slate-700
-                       hover:bg-slate-50 transition"
+                       font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -447,11 +763,10 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           <h1 className="text-3xl font-bold text-slate-900 mb-2 font-heading">
             {comic.title.english || comic.title.romaji}
           </h1>
-
           <div className="flex items-center gap-4 flex-wrap mb-6">
             <span className="text-sm text-slate-500">
               <span className="font-medium text-slate-700">Author:</span>{" "}
-              {author}
+              {getAuthor(comic.staff?.edges || [])}
             </span>
             {comic.status && (
               <span
@@ -463,13 +778,12 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
             <span
               className={`text-xs font-bold px-2.5 py-1 rounded-full border ${typeColor}`}
             >
-              {typeLabel}
+              {typeLabel.toUpperCase()}
             </span>
           </div>
 
-          {/* Rating Distribution Card */}
+          {/* Rating Distribution */}
           <div className="bg-white border border-slate-100 rounded-2xl p-5 mb-6 flex gap-6">
-            {/* Big Score */}
             <div className="text-center shrink-0 pr-6 border-r border-slate-100">
               <div className="flex items-center gap-1 mb-1">
                 <span className="text-amber-400 text-2xl">★</span>
@@ -483,11 +797,9 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
               <p className="text-xs text-slate-400">
                 {totalVotes > 0
                   ? `${totalVotes.toLocaleString()} ${totalVotes === 1 ? "vote" : "votes"}`
-                  : `Based on AniList data`}
+                  : "Based on AniList data"}
               </p>
             </div>
-
-            {/* Bar Chart */}
             <div className="flex-1 space-y-2">
               {[10, 9, 8, 7, 6].map((star) => (
                 <RatingBar
@@ -517,7 +829,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                   <span
                     key={g}
                     className="px-3 py-1 bg-slate-100 text-slate-600 text-sm rounded-full
-                               border border-slate-200 hover:bg-slate-200 transition cursor-pointer"
+                                          border border-slate-200 hover:bg-slate-200 transition cursor-pointer"
                   >
                     {g}
                   </span>
@@ -541,32 +853,26 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
             {/* Comment Input */}
             <div className="bg-white border border-slate-100 rounded-2xl p-4 mb-4">
               <div className="flex gap-3">
-                {/* Avatar */}
                 <div
                   className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center
                                text-slate-400 font-bold text-sm shrink-0"
                 >
                   {session ? session.user.email?.[0]?.toUpperCase() : "?"}
                 </div>
-                <div className="flex-1">
-                  <textarea
-                    id="review-input"
-                    rows={2}
-                    placeholder={
-                      session
-                        ? "Leave a comment or write a review..."
-                        : "Login dulu untuk menulis review..."
-                    }
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    disabled={!session}
-                    className="w-full text-sm text-slate-700 placeholder-slate-400 border-none
-                               outline-none resize-none bg-transparent"
-                  />
-                </div>
+                <textarea
+                  id="review-input"
+                  rows={2}
+                  placeholder={
+                    session
+                      ? "Leave a comment or write a review..."
+                      : "Login dulu untuk menulis review..."
+                  }
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  disabled={!session}
+                  className="flex-1 text-sm text-slate-700 placeholder-slate-400 border-none outline-none resize-none bg-transparent"
+                />
               </div>
-
-              {/* Divider + Post button */}
               <div className="border-t border-slate-100 mt-3 pt-3 flex justify-between items-center">
                 {!session && (
                   <button
@@ -595,84 +901,16 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                 Belum ada review. Jadilah yang pertama! 🎉
               </div>
             ) : (
-              <div className="space-y-3">
-                {comments.map((c) => (
-                  <div
+              <div className="space-y-6">
+                {parentComments.map((c) => (
+                  <CommentItem
                     key={c.id}
-                    className="bg-white border border-slate-100 rounded-2xl p-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      {/* Avatar */}
-                      <div
-                        className="w-9 h-9 rounded-full bg-slate-700 text-white font-bold
-                                     text-sm flex items-center justify-center shrink-0"
-                      >
-                        {c.profiles?.username?.[0]?.toUpperCase() ?? "?"}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <div>
-                            <span className="font-semibold text-slate-800 text-sm">
-                              {c.profiles?.username ?? "Anonymous"}
-                            </span>
-                            <span className="text-slate-400 text-xs ml-2">
-                              {timeAgo(c.created_at)}
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-slate-600 text-sm leading-relaxed">
-                          {c.content}
-                        </p>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-4 mt-3">
-                          <button className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width={14}
-                              height={14}
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={2}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path
-                                stroke="none"
-                                d="M0 0h24v24H0z"
-                                fill="none"
-                              />
-                              <path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3" />
-                            </svg>
-                            Like
-                          </button>
-                          <button className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width={14}
-                              height={14}
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth={2}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path
-                                stroke="none"
-                                d="M0 0h24v24H0z"
-                                fill="none"
-                              />
-                              <path d="M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1" />
-                            </svg>
-                            Reply
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    comment={c}
+                    replies={replyMap[c.id] || []}
+                    onReply={handleReplyClick}
+                    onLike={handleLike}
+                    session={session}
+                  />
                 ))}
               </div>
             )}
