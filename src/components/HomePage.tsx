@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 import { fetchFromAniList } from "../lib/anilist";
 import { QUERIES_BY_TAB } from "../lib/queries";
 import { getAuthor, getBadge, formatScore, getTitle } from "../lib/utils";
@@ -200,15 +201,82 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [topContributors, setTopContributors] = useState<any[]>([]);
+  const [recentReviews, setRecentReviews] = useState<any[]>([]);
 
   useEffect(() => {
     setLoading(true);
     setError(null);
+    loadTopContributors();
+    loadRecentReviews();
     fetchFromAniList(QUERIES_BY_TAB[activeTab])
       .then((data) => setComics(data.Page.media))
       .catch(() => setError("Gagal ngambil data. Coba refresh."))
       .finally(() => setLoading(false));
   }, [activeTab]);
+
+  const loadTopContributors = async () => {
+    const { data, error } = await supabase.from("comments").select("user_id");
+
+    if (error || !data) return;
+
+    // hitung manual (biar fleksibel)
+    const countMap: Record<string, number> = {};
+
+    data.forEach((c) => {
+      countMap[c.user_id] = (countMap[c.user_id] || 0) + 1;
+    });
+
+    const sorted = Object.entries(countMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+
+    const userIds = sorted.map(([id]) => id);
+
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, username")
+      .in("id", userIds);
+
+    const result = sorted.map(([id, count], i) => ({
+      rank: i + 1,
+      name: profiles?.find((p) => p.id === id)?.username ?? "Unknown",
+      reviews: count,
+    }));
+
+    setTopContributors(result);
+  };
+
+  const loadRecentReviews = async () => {
+    const { data, error } = await supabase
+      .from("ratings")
+      .select(
+        `
+      score,
+      created_at,
+      profiles!fk_user (username), 
+      comics!fk_comic (title)
+    `,
+      ) // Pakai nama constraint yang ada di foto lu tadi
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    if (error) {
+      console.error("Gagal get recent reviews:", error.message);
+      return;
+    }
+
+    if (!data) return;
+
+    const result = data.map((r: any) => ({
+      // Cek apakah r.profiles itu object atau array, biasanya object kalau many-to-one
+      user: r.profiles?.username || r.profiles?.[0]?.username || "Unknown",
+      title: r.comics?.title || r.comics?.[0]?.title || "Unknown",
+      score: `${r.score}/10`,
+    }));
+
+    setRecentReviews(result);
+  };
 
   return (
     <>
@@ -279,13 +347,13 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
               <span>Top Contributors</span>
             </h3>
             <div className="space-y-3">
-              {TOP_CONTRIBUTORS.map((c) => (
+              {topContributors.map((c) => (
                 <div key={c.rank} className="flex items-start gap-3">
                   <span className="text-xs text-slate-400 pt-0.5 w-5">
                     #{c.rank}
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-slate-700 leading-tight">
+                    <p className="text-sm font-semibold text-slate-700">
                       {c.name}
                     </p>
                     <p className="text-xs text-slate-400">
@@ -304,7 +372,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
               <span>Recent Reviews</span>
             </h3>
             <div className="space-y-4">
-              {RECENT_REVIEWS.map((r, i) => (
+              {recentReviews.map((r, i) => (
                 <div key={i}>
                   <p className="text-xs text-slate-400 mb-0.5">
                     {r.user} reviewed
@@ -312,7 +380,9 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
                   <p className="text-sm font-semibold text-slate-700">
                     {r.title}
                   </p>
-                  <p className="text-xs text-amber-500 font-bold">{r.score}</p>
+                  <p className="text-xs text-slate-500 line-clamp-2">
+                    ⭐ {r.score}
+                  </p>
                 </div>
               ))}
             </div>
