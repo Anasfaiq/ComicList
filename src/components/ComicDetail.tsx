@@ -153,12 +153,24 @@ const CommentItem = ({
   replies,
   onReply,
   onLike,
+  onDelete,
+  onUpdate,
   session,
+  editingId,
+  setEditingId,
+  editText,
+  setEditText,
 }: {
   comment: Comment;
   replies: Comment[];
   onReply: (id: string) => void;
   onLike: (id: string) => void;
+  onDelete: (id: string) => void;
+  onUpdate: (id: string, content: string) => void;
+  editingId: string | null;
+  setEditingId: (id: string | null) => void;
+  editText: string;
+  setEditText: (text: string) => void;
   session: any;
 }) => {
   const [showReplies, setShowReplies] = useState(true);
@@ -182,9 +194,38 @@ const CommentItem = ({
                 {timeAgo(comment.created_at)}
               </span>
             </div>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              {comment.content}
-            </p>
+            {editingId === comment.id ? (
+              <div className="space-y-2">
+                <textarea
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  className="w-full text-sm border rounded-lg p-2"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      onUpdate(comment.id, editText);
+                    }}
+                    className="text-xs text-green-600"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingId(null);
+                      setEditText("");
+                    }}
+                    className="text-xs text-slate-400"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-slate-600 text-sm leading-relaxed">
+                {comment.content}
+              </p>
+            )}
             <div className="flex items-center gap-4 mt-3">
               <button
                 onClick={() => onLike(comment.id)}
@@ -209,6 +250,26 @@ const CommentItem = ({
                     ? `Hide Replies`
                     : `Show ${replies.length} Replies`}
                 </button>
+              )}
+              {session?.user?.id === comment.profiles?.id && (
+                <>
+                  <button
+                    onClick={() => {
+                      setEditingId(comment.id);
+                      setEditText(comment.content);
+                    }}
+                    className="text-xs text-blue-400 hover:text-blue-600"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => onDelete(comment.id)}
+                    className="text-xs text-red-400 hover:text-red-600"
+                  >
+                    Delete
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -236,9 +297,36 @@ const CommentItem = ({
                       {timeAgo(r.created_at)}
                     </span>
                   </div>
-                  <p className="text-slate-600 text-xs leading-relaxed">
-                    {r.content}
-                  </p>
+                  {editingId === r.id ? (
+                    <div className="space-y-1">
+                      <textarea
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        className="w-full text-xs border rounded-lg p-1"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => onUpdate(r.id, editText)}
+                          className="text-[10px] text-green-600"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingId(null);
+                            setEditText("");
+                          }}
+                          className="text-[10px] text-slate-400"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-slate-600 text-xs leading-relaxed">
+                      {r.content}
+                    </p>
+                  )}
                   <button
                     onClick={() => onLike(r.id)}
                     className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-400 hover:text-indigo-600"
@@ -248,6 +336,26 @@ const CommentItem = ({
                     )}
                     <span>{r.like_count}</span>
                   </button>
+                  {session?.user?.id === r.profiles?.id && (
+                    <div className="flex gap-2 mt-1">
+                      <button
+                        onClick={() => {
+                          setEditingId(r.id);
+                          setEditText(r.content);
+                        }}
+                        className="text-[10px] text-blue-400 hover:text-blue-600"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => onDelete(r.id)}
+                        className="text-[10px] text-red-400 hover:text-red-600"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -272,6 +380,8 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   const [inLibrary, setInLibrary] = useState(false);
   const [libraryLoading, setLibraryLoading] = useState(false);
   const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -296,7 +406,69 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       .finally(() => setLoading(false));
   }, [comicId]);
 
-  // ── Upsert comic ─────────────────────────────────────────────────────────────
+  // Cari useEffect untuk realtime (di bawah useEffect fetch data utama) dan ganti jadi ini:
+
+  useEffect(() => {
+    if (!supabaseId) return;
+
+    // 1. Listener untuk Comments
+    const commentChannel = supabase
+      .channel("live-comments")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "comments",
+          filter: `comic_id=eq.${supabaseId}`, // Pake supabaseId (UUID), bukan AniList ID
+        },
+        () => {
+          loadComments(supabaseId);
+        },
+      )
+      .subscribe();
+
+    // 2. Listener untuk Ratings
+    const ratingChannel = supabase
+      .channel("live-ratings")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "ratings",
+          filter: `comic_id=eq.${supabaseId}`,
+        },
+        () => {
+          loadRatings(supabaseId);
+        },
+      )
+      .subscribe();
+
+    // 3. Listener untuk Likes
+    const likeChannel = supabase
+      .channel("live-likes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "comment_likes",
+        },
+        () => {
+          loadComments(supabaseId);
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(commentChannel);
+      supabase.removeChannel(ratingChannel);
+      supabase.removeChannel(likeChannel);
+    };
+  }, [supabaseId]); // Dependency ke supabaseId karena filter butuh UUID table
+
+  // Upsert comic
   const upsertComic = async (m: any): Promise<string | null> => {
     // Try find existing by external_id first
     const { data: existing } = await supabase
@@ -393,6 +565,40 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     setComments(merged);
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    if (!session) return navigate("auth");
+
+    const { error } = await supabase
+      .from("comments")
+      .delete()
+      .eq("id", commentId)
+      .eq("user_id", session.user.id);
+
+    if (!error) {
+      loadComments(supabaseId!);
+    } else {
+      alert("Gagal hapus comment: " + error.message);
+    }
+  };
+
+  const handleUpdateComment = async (commentId: string, content: string) => {
+    if (!session) return;
+
+    const { error } = await supabase
+      .from("comments")
+      .update({ content: editText })
+      .eq("id", commentId)
+      .eq("user_id", session.user.id);
+
+    if (!error) {
+      setEditingId(null);
+      setEditText("");
+      loadComments(supabaseId!);
+    } else {
+      alert("Gagal update comment: " + error.message);
+    }
+  };
+
   const loadUserRating = async (id: string) => {
     if (!session) return;
     const { data } = await supabase
@@ -402,6 +608,23 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       .eq("user_id", session.user.id)
       .maybeSingle();
     if (data) setUserRating(data.score);
+  };
+
+  const handleDeleteRating = async () => {
+    if (!session || !supabaseId) return;
+
+    const { error } = await supabase
+      .from("ratings")
+      .delete()
+      .eq("user_id", session.user.id)
+      .eq("comic_id", supabaseId);
+
+    if (!error) {
+      setUserRating(0);
+      loadRatings(supabaseId);
+    } else {
+      alert("Gagal hapus rating: " + error.message);
+    }
   };
 
   const checkLibrary = async (id: string) => {
@@ -538,11 +761,12 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     }
   };
 
-  const handleAddToLibrary = async () => {
+  const handleToggleLibrary = async () => {
     if (!session) {
       navigate("auth");
       return;
     }
+
     const id = await ensureSupabaseId();
     if (!id) {
       alert("Gagal menyimpan, coba lagi.");
@@ -550,14 +774,36 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     }
 
     setLibraryLoading(true);
-    const { error } = await supabase
-      .from("user_library")
-      .upsert(
-        { user_id: session.user.id, comic_id: id, status: "reading" },
-        { onConflict: "user_id,comic_id" },
-      );
-    if (!error) setInLibrary(true);
-    else alert("Gagal menambah ke library: " + error.message);
+
+    if (inLibrary) {
+      // 🔴 DELETE
+      const { error } = await supabase
+        .from("user_library")
+        .delete()
+        .eq("user_id", session.user.id)
+        .eq("comic_id", id);
+
+      if (!error) {
+        setInLibrary(false);
+      } else {
+        alert("Gagal hapus dari library: " + error.message);
+      }
+    } else {
+      // 🟢 INSERT / UPSERT
+      const { error } = await supabase
+        .from("user_library")
+        .upsert(
+          { user_id: session.user.id, comic_id: id, status: "reading" },
+          { onConflict: "user_id,comic_id" },
+        );
+
+      if (!error) {
+        setInLibrary(true);
+      } else {
+        alert("Gagal menambah ke library: " + error.message);
+      }
+    }
+
     setLibraryLoading(false);
   };
 
@@ -693,18 +939,26 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                 untuk rating
               </p>
             )}
+            {userRating > 0 && (
+              <button
+                onClick={handleDeleteRating}
+                className="text-xs text-red-500 hover:underline mt-2"
+              >
+                Hapus rating
+              </button>
+            )}
           </div>
 
           {/* Add to Library */}
           <button
-            onClick={handleAddToLibrary}
-            disabled={libraryLoading || inLibrary}
+            onClick={handleToggleLibrary}
+            disabled={libraryLoading}
             className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm
-                       font-semibold border transition
+                       font-semibold border transition-all duration-200
                        ${
                          inLibrary
-                           ? "bg-green-50 text-green-600 border-green-200"
-                           : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                           ? `bg-red-50 text-red-600 border-red-200 md:bg-green-50 md:text-green-600 md:border-green-200 md:hover:bg-red-50 md:hover:text-red-600 md:hover:border-red-200`
+                           : `bg-green-50 text-green-600 border-green-200 md:bg-white md:text-slate-700 md:border-slate-200 md:hover:bg-green-50 md:hover:text-green-600 md:hover:border-green-200`
                        }`}
           >
             <svg
@@ -725,10 +979,10 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
               <path d="M12 6v13" />
               <path d="M21 6v13" />
             </svg>
-            {inLibrary
-              ? "Added to Library ✓"
-              : libraryLoading
-                ? "Adding..."
+            {libraryLoading
+              ? "Processing..."
+              : inLibrary
+                ? "Remove from Library"
                 : "Add to Library"}
           </button>
 
@@ -736,7 +990,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           <button
             onClick={() => document.getElementById("review-input")?.focus()}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm
-                       font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition"
+                       font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition-all duration-200"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -909,7 +1163,13 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                     replies={replyMap[c.id] || []}
                     onReply={handleReplyClick}
                     onLike={handleLike}
+                    onDelete={handleDeleteComment}
+                    onUpdate={handleUpdateComment}
                     session={session}
+                    editingId={editingId}
+                    setEditingId={setEditingId}
+                    editText={editText}
+                    setEditText={setEditText}
                   />
                 ))}
               </div>
