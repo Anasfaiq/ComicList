@@ -6,31 +6,30 @@ import { getAuthor, cleanDescription } from "../lib/utils";
 import type { NavigateFn, Comment, RatingRow } from "../types";
 
 interface ComicDetailProps {
-  comicId: number;
+  comicId: number | string;
   session: any;
   navigate: NavigateFn;
 }
 
 const STATUS_COLORS: Record<string, string> = {
   RELEASING: "text-green-600 bg-green-50 border-green-200",
+  releasing: "text-green-600 bg-green-50 border-green-200",
   FINISHED: "text-blue-600 bg-blue-50 border-blue-200",
+  finished: "text-blue-600 bg-blue-50 border-blue-200",
   NOT_YET_RELEASED: "text-orange-600 bg-orange-50 border-orange-200",
   CANCELLED: "text-red-600 bg-red-50 border-red-200",
   HIATUS: "text-yellow-600 bg-yellow-50 border-yellow-200",
 };
 
-const TYPE_LABELS: Record<string, string> = {
-  KR: "manhwa",
-  CN: "manhua",
-  JP: "manga",
-};
 const TYPE_COLORS: Record<string, string> = {
   KR: "text-green-600 bg-green-50 border-green-200",
+  manhwa: "text-green-600 bg-green-50 border-green-200",
   CN: "text-orange-600 bg-orange-50 border-orange-200",
+  manhua: "text-orange-600 bg-orange-50 border-orange-200",
   JP: "text-blue-600 bg-blue-50 border-blue-200",
+  manga: "text-blue-600 bg-blue-50 border-blue-200",
 };
 
-// Definisikan tipe props biar dapet autocomplete (Opsional kalau pake TS)
 interface IconProps {
   size?: number;
   className?: string;
@@ -50,7 +49,7 @@ const ICONS = [
         strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={`icon icon-tabler icons-tabler-outline icon-tabler-thumb-up ${className}`}
+        className={className}
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3" />
@@ -70,7 +69,7 @@ const ICONS = [
         strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={`icon icon-tabler icons-tabler-outline icon-tabler-message-plus ${className}`}
+        className={className}
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M8 9h8" />
@@ -92,7 +91,6 @@ const timeAgo = (dateStr: string) => {
   return `${Math.floor(diff / 604800)}w ago`;
 };
 
-// Star Rating
 const StarRating = ({
   value,
   hover,
@@ -111,8 +109,7 @@ const StarRating = ({
         onMouseEnter={() => onHover(i + 1)}
         onMouseLeave={() => onHover(0)}
         onClick={() => onClick(i + 1)}
-        className={`text-xl transition-colors cursor-pointer
-                   ${(hover || value) >= i + 1 ? "text-amber-400" : "text-slate-200"}`}
+        className={`text-xl transition-colors cursor-pointer ${(hover || value) >= i + 1 ? "text-amber-400" : "text-slate-200"}`}
         style={{ background: "none", border: "none", padding: "0 1px" }}
       >
         ★
@@ -121,7 +118,6 @@ const StarRating = ({
   </div>
 );
 
-// Rating Bar
 const RatingBar = ({
   label,
   count,
@@ -179,7 +175,6 @@ const CommentItem = ({
 
   return (
     <div className="space-y-3">
-      {/* Parent Comment */}
       <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0 shadow-inner">
@@ -203,9 +198,7 @@ const CommentItem = ({
                 />
                 <div className="flex gap-2">
                   <button
-                    onClick={() => {
-                      onUpdate(comment.id, editText);
-                    }}
+                    onClick={() => onUpdate(comment.id, editText)}
                     className="text-xs text-green-600"
                   >
                     Save
@@ -231,14 +224,14 @@ const CommentItem = ({
                 onClick={() => onLike(comment.id)}
                 className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 transition"
               >
-                {LikeIcon && <LikeIcon size={16} className="" />}
+                {LikeIcon && <LikeIcon size={16} />}
                 <span>{comment.like_count}</span>
               </button>
               <button
                 onClick={() => onReply(comment.id)}
                 className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 transition"
               >
-                {ReplyIcon && <ReplyIcon size={16} className="" />}
+                {ReplyIcon && <ReplyIcon size={16} />}
                 <span>Reply</span>
               </button>
               {replies.length > 0 && (
@@ -247,7 +240,7 @@ const CommentItem = ({
                   className="text-[11px] font-bold text-indigo-500 hover:text-indigo-700 ml-auto"
                 >
                   {showReplies
-                    ? `Hide Replies`
+                    ? "Hide Replies"
                     : `Show ${replies.length} Replies`}
                 </button>
               )}
@@ -262,7 +255,6 @@ const CommentItem = ({
                   >
                     Edit
                   </button>
-
                   <button
                     onClick={() => onDelete(comment.id)}
                     className="text-xs text-red-400 hover:text-red-600"
@@ -276,7 +268,6 @@ const CommentItem = ({
         </div>
       </div>
 
-      {/* Indented Replies */}
       {showReplies && replies.length > 0 && (
         <div className="ml-10 pl-4 border-l-2 border-slate-200 space-y-3">
           {replies.map((r) => (
@@ -347,7 +338,6 @@ const CommentItem = ({
                       >
                         Edit
                       </button>
-
                       <button
                         onClick={() => onDelete(r.id)}
                         className="text-[10px] text-red-400 hover:text-red-600"
@@ -366,10 +356,12 @@ const CommentItem = ({
   );
 };
 
-// Main
+// ── Main ─────────────────────────────────────────────────────────────────────
+
 const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   const [comic, setComic] = useState<any>(null);
   const [supabaseId, setSupabaseId] = useState<string | null>(null);
+  const [isManual, setIsManual] = useState(false);
   const [loading, setLoading] = useState(true);
   const [ratings, setRatings] = useState<RatingRow[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -387,31 +379,84 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     setLoading(true);
     setUserRating(0);
     setInLibrary(false);
+    setIsManual(false);
 
-    fetchFromAniList(DETAIL_QUERY, { id: comicId })
-      .then(async (data) => {
-        setComic(data.Media);
-        const id = await upsertComic(data.Media);
-        setSupabaseId(id);
-        if (id) {
-          await Promise.all([
-            loadRatings(id),
-            loadComments(id),
-            loadUserRating(id),
-            checkLibrary(id),
-          ]);
-        }
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    const isUUID = typeof comicId === "string" && comicId.includes("-");
+
+    if (isUUID) {
+      // Komik manual — langsung ambil dari Supabase
+      loadManualComic(comicId as string);
+    } else {
+      // Komik AniList — fetch dari API dulu
+      fetchFromAniList(DETAIL_QUERY, { id: comicId })
+        .then(async (data) => {
+          setComic(data.Media);
+          const id = await upsertComic(data.Media);
+          setSupabaseId(id);
+          if (id) {
+            await Promise.all([
+              loadRatings(id),
+              loadComments(id),
+              loadUserRating(id),
+              checkLibrary(id),
+            ]);
+          }
+        })
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    }
   }, [comicId]);
 
-  // Cari useEffect untuk realtime (di bawah useEffect fetch data utama) dan ganti jadi ini:
+  // Load komik manual dari Supabase
+  const loadManualComic = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("comics")
+        .select("*")
+        .eq("id", id)
+        .single();
 
+      if (error || !data) throw new Error("Komik tidak ditemukan");
+
+      // Format supaya struktur sama kayak AniList comic object
+      setComic({
+        title: { english: data.title, romaji: data.title },
+        coverImage: { large: data.cover_url, extraLarge: data.cover_url },
+        description: data.synopsis,
+        status: data.status,
+        genres: data.genres || [],
+        countryOfOrigin:
+          data.type === "manhwa" ? "KR" : data.type === "manhua" ? "CN" : "JP",
+        _type: data.type, // simpan type asli
+        staff: {
+          edges: data.author
+            ? [{ role: "Story & Art", node: { name: { full: data.author } } }]
+            : [],
+        },
+        averageScore: null,
+      });
+
+      setSupabaseId(id);
+      setIsManual(true);
+
+      await Promise.all([
+        loadRatings(id),
+        loadComments(id),
+        loadUserRating(id),
+        checkLibrary(id),
+      ]);
+    } catch (err) {
+      console.error(err);
+      setComic(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Realtime listeners
   useEffect(() => {
     if (!supabaseId) return;
 
-    // 1. Listener untuk Comments
     const commentChannel = supabase
       .channel("live-comments")
       .on(
@@ -420,15 +465,12 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           event: "INSERT",
           schema: "public",
           table: "comments",
-          filter: `comic_id=eq.${supabaseId}`, // Pake supabaseId (UUID), bukan AniList ID
+          filter: `comic_id=eq.${supabaseId}`,
         },
-        () => {
-          loadComments(supabaseId);
-        },
+        () => loadComments(supabaseId),
       )
       .subscribe();
 
-    // 2. Listener untuk Ratings
     const ratingChannel = supabase
       .channel("live-ratings")
       .on(
@@ -439,25 +481,16 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           table: "ratings",
           filter: `comic_id=eq.${supabaseId}`,
         },
-        () => {
-          loadRatings(supabaseId);
-        },
+        () => loadRatings(supabaseId),
       )
       .subscribe();
 
-    // 3. Listener untuk Likes
     const likeChannel = supabase
       .channel("live-likes")
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "comment_likes",
-        },
-        () => {
-          loadComments(supabaseId);
-        },
+        { event: "*", schema: "public", table: "comment_likes" },
+        () => loadComments(supabaseId),
       )
       .subscribe();
 
@@ -466,20 +499,22 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       supabase.removeChannel(ratingChannel);
       supabase.removeChannel(likeChannel);
     };
-  }, [supabaseId]); // Dependency ke supabaseId karena filter butuh UUID table
+  }, [supabaseId]);
 
-  // Upsert comic
   const upsertComic = async (m: any): Promise<string | null> => {
-    // Try find existing by external_id first
     const { data: existing } = await supabase
       .from("comics")
       .select("id")
       .eq("external_id", m.id)
       .maybeSingle();
     if (existing?.id) return existing.id;
-
-    // Only insert if logged in
     if (!session) return null;
+
+    const TYPE_LABELS: Record<string, string> = {
+      KR: "manhwa",
+      CN: "manhua",
+      JP: "manga",
+    };
 
     const { data: inserted, error } = await supabase
       .from("comics")
@@ -488,7 +523,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
         synopsis: cleanDescription(m.description, 500),
         cover_url: m.coverImage?.large,
         author: getAuthor(m.staff?.edges || []),
-        type: TYPE_LABELS[m.countryOfOrigin] ?? "MANGA",
+        type: TYPE_LABELS[m.countryOfOrigin] ?? "manga",
         status: m.status ?? "UNKNOWN",
         external_id: m.id,
         created_by: session.user.id,
@@ -496,7 +531,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       .select("id")
       .maybeSingle();
 
-    // Handle race condition — another tab inserted first
     if (error?.code === "23505") {
       const { data: refetch } = await supabase
         .from("comics")
@@ -512,7 +546,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     return inserted?.id ?? null;
   };
 
-  // Loaders
   const loadRatings = async (id: string) => {
     const { data } = await supabase
       .from("ratings")
@@ -521,7 +554,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     setRatings(data || []);
   };
 
-  // Two-step: fetch comments then profiles (more reliable than PostgREST join)
   const loadComments = async (id: string) => {
     const { data: raw, error } = await supabase
       .from("comments")
@@ -537,11 +569,11 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     const { data: likes } = await supabase
       .from("comment_likes")
       .select("comment_id");
-
     const likeMap: Record<string, number> = {};
     likes?.forEach((l) => {
       likeMap[l.comment_id] = (likeMap[l.comment_id] || 0) + 1;
     });
+
     const userIds = [...new Set(raw.map((c) => c.user_id))];
     const { data: profs } = await supabase
       .from("profiles")
@@ -553,50 +585,14 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       content: c.content,
       created_at: c.created_at,
       parent_id: c.parent_id,
-
       profiles: profs?.find((p) => p.id === c.user_id) ?? {
         id: c.user_id,
         username: "Anonymous",
         avatar_url: null,
       },
-
       like_count: likeMap[c.id] || 0,
     }));
     setComments(merged);
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    if (!session) return navigate("auth");
-
-    const { error } = await supabase
-      .from("comments")
-      .delete()
-      .eq("id", commentId)
-      .eq("user_id", session.user.id);
-
-    if (!error) {
-      loadComments(supabaseId!);
-    } else {
-      alert("Gagal hapus comment: " + error.message);
-    }
-  };
-
-  const handleUpdateComment = async (commentId: string, content: string) => {
-    if (!session) return;
-
-    const { error } = await supabase
-      .from("comments")
-      .update({ content: editText })
-      .eq("id", commentId)
-      .eq("user_id", session.user.id);
-
-    if (!error) {
-      setEditingId(null);
-      setEditText("");
-      loadComments(supabaseId!);
-    } else {
-      alert("Gagal update comment: " + error.message);
-    }
   };
 
   const loadUserRating = async (id: string) => {
@@ -610,23 +606,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     if (data) setUserRating(data.score);
   };
 
-  const handleDeleteRating = async () => {
-    if (!session || !supabaseId) return;
-
-    const { error } = await supabase
-      .from("ratings")
-      .delete()
-      .eq("user_id", session.user.id)
-      .eq("comic_id", supabaseId);
-
-    if (!error) {
-      setUserRating(0);
-      loadRatings(supabaseId);
-    } else {
-      alert("Gagal hapus rating: " + error.message);
-    }
-  };
-
   const checkLibrary = async (id: string) => {
     if (!session) return;
     const { data } = await supabase
@@ -638,9 +617,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     setInLibrary(!!data);
   };
 
-  // Actions
-
-  // Ensure comic exists in Supabase sebelum aksi apapun
   const ensureSupabaseId = async (): Promise<string | null> => {
     if (supabaseId) return supabaseId;
     if (!session || !comic) return null;
@@ -663,7 +639,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     const prev = userRating;
     setUserRating(score);
 
-    // Use select → update/insert (safer than upsert with constraint)
     const { data: existing } = await supabase
       .from("ratings")
       .select("id")
@@ -689,6 +664,19 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       return;
     }
     loadRatings(id);
+  };
+
+  const handleDeleteRating = async () => {
+    if (!session || !supabaseId) return;
+    const { error } = await supabase
+      .from("ratings")
+      .delete()
+      .eq("user_id", session.user.id)
+      .eq("comic_id", supabaseId);
+    if (!error) {
+      setUserRating(0);
+      loadRatings(supabaseId);
+    } else alert("Gagal hapus rating: " + error.message);
   };
 
   const handleComment = async () => {
@@ -718,6 +706,31 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     setSubmitting(false);
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    if (!session) return navigate("auth");
+    const { error } = await supabase
+      .from("comments")
+      .delete()
+      .eq("id", commentId)
+      .eq("user_id", session.user.id);
+    if (!error) loadComments(supabaseId!);
+    else alert("Gagal hapus comment: " + error.message);
+  };
+
+  const handleUpdateComment = async (commentId: string, content: string) => {
+    if (!session) return;
+    const { error } = await supabase
+      .from("comments")
+      .update({ content: editText })
+      .eq("id", commentId)
+      .eq("user_id", session.user.id);
+    if (!error) {
+      setEditingId(null);
+      setEditText("");
+      loadComments(supabaseId!);
+    } else alert("Gagal update comment: " + error.message);
+  };
+
   const handleReplyClick = (id: string) => {
     setReplyTo(id);
     document.getElementById("review-input")?.focus();
@@ -725,7 +738,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
 
   const handleLike = async (commentId: string) => {
     if (!session) return navigate("auth");
-
     const { data: existing } = await supabase
       .from("comment_likes")
       .select("id")
@@ -735,8 +747,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
 
     if (existing) {
       await supabase.from("comment_likes").delete().eq("id", existing.id);
-
-      // update local state
       setComments((prev) =>
         prev.map((c) =>
           c.id === commentId
@@ -745,12 +755,9 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
         ),
       );
     } else {
-      await supabase.from("comment_likes").insert({
-        user_id: session.user.id,
-        comment_id: commentId,
-      });
-
-      // update local state
+      await supabase
+        .from("comment_likes")
+        .insert({ user_id: session.user.id, comment_id: commentId });
       setComments((prev) =>
         prev.map((c) =>
           c.id === commentId
@@ -766,7 +773,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       navigate("auth");
       return;
     }
-
     const id = await ensureSupabaseId();
     if (!id) {
       alert("Gagal menyimpan, coba lagi.");
@@ -774,36 +780,24 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     }
 
     setLibraryLoading(true);
-
     if (inLibrary) {
-      // 🔴 DELETE
       const { error } = await supabase
         .from("user_library")
         .delete()
         .eq("user_id", session.user.id)
         .eq("comic_id", id);
-
-      if (!error) {
-        setInLibrary(false);
-      } else {
-        alert("Gagal hapus dari library: " + error.message);
-      }
+      if (!error) setInLibrary(false);
+      else alert("Gagal hapus dari library: " + error.message);
     } else {
-      // 🟢 INSERT / UPSERT
       const { error } = await supabase
         .from("user_library")
         .upsert(
           { user_id: session.user.id, comic_id: id, status: "reading" },
           { onConflict: "user_id,comic_id" },
         );
-
-      if (!error) {
-        setInLibrary(true);
-      } else {
-        alert("Gagal menambah ke library: " + error.message);
-      }
+      if (!error) setInLibrary(true);
+      else alert("Gagal menambah ke library: " + error.message);
     }
-
     setLibraryLoading(false);
   };
 
@@ -820,21 +814,16 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   ratings.forEach((r) => {
     ratingDist[r.score] = (ratingDist[r.score] || 0) + 1;
   });
-  // ── Pisahin parent & reply ──
+
   const parentComments = comments.filter((c) => !c.parent_id);
-
   const replyMap: Record<string, Comment[]> = {};
-
   comments.forEach((c) => {
     if (c.parent_id) {
-      if (!replyMap[c.parent_id]) {
-        replyMap[c.parent_id] = [];
-      }
+      if (!replyMap[c.parent_id]) replyMap[c.parent_id] = [];
       replyMap[c.parent_id].push(c);
     }
   });
 
-  // Loading
   if (loading)
     return (
       <div className="max-w-screen-xl mx-auto px-6 py-8 flex gap-8 animate-pulse">
@@ -863,15 +852,35 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       </div>
     );
 
-  const typeLabel = TYPE_LABELS[comic.countryOfOrigin] ?? "MANGA";
-  const typeColor = TYPE_COLORS[comic.countryOfOrigin] ?? TYPE_COLORS["JP"];
+  // Resolve display values — handle both AniList & manual comic shapes
+  const displayTitle =
+    comic.title?.english || comic.title?.romaji || "Untitled";
+  const displayAuthor = getAuthor(comic.staff?.edges || []);
+  const displayType =
+    comic._type ||
+    (comic.countryOfOrigin === "KR"
+      ? "manhwa"
+      : comic.countryOfOrigin === "CN"
+        ? "manhua"
+        : "manga");
+  const displayStatus = comic.status ?? "UNKNOWN";
   const statusColor =
-    STATUS_COLORS[comic.status] ??
+    STATUS_COLORS[displayStatus] ??
     "text-slate-500 bg-slate-50 border-slate-200";
   const statusLabel =
-    comic.status === "RELEASING" ? "ONGOING" : (comic.status ?? "UNKNOWN");
-  const description = cleanDescription(comic.description, 800);
+    displayStatus === "RELEASING" || displayStatus === "releasing"
+      ? "ONGOING"
+      : displayStatus.toUpperCase();
+  const typeColor =
+    TYPE_COLORS[comic.countryOfOrigin] ??
+    TYPE_COLORS[displayType] ??
+    TYPE_COLORS["manga"];
+  const description = isManual
+    ? comic.description || "Tidak ada sinopsis."
+    : cleanDescription(comic.description, 800);
   const cover = comic.coverImage?.extraLarge || comic.coverImage?.large;
+  const genres: string[] = comic.genres || [];
+  console.log("genres:", comic.genres);
 
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-6">
@@ -897,16 +906,43 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
         Back to Browse
       </button>
 
+      {/* Manual badge */}
+      {isManual && (
+        <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-full text-xs font-semibold text-purple-600">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={12}
+            height={12}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M12 5l0 14" />
+            <path d="M5 12l14 0" />
+          </svg>
+          Uploaded Manual
+        </div>
+      )}
+
       <div className="flex gap-8 items-start">
-        {/* ── Left Column ── */}
+        {/* Left Column */}
         <div className="w-64 shrink-0 sticky top-20 space-y-4">
-          {/* Cover */}
           <div className="rounded-2xl overflow-hidden shadow-lg">
-            <img
-              src={cover}
-              alt={comic.title.english || comic.title.romaji}
-              className="w-full object-cover"
-            />
+            {cover ? (
+              <img
+                src={cover}
+                alt={displayTitle}
+                className="w-full object-cover"
+              />
+            ) : (
+              <div className="w-full aspect-[2/3] bg-slate-100 flex items-center justify-center text-slate-300 text-sm">
+                No Cover
+              </div>
+            )}
           </div>
 
           {/* Rate This */}
@@ -953,13 +989,12 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           <button
             onClick={handleToggleLibrary}
             disabled={libraryLoading}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm
-                       font-semibold border transition-all duration-200
-                       ${
-                         inLibrary
-                           ? `bg-red-50 text-red-600 border-red-200 md:bg-green-50 md:text-green-600 md:border-green-200 md:hover:bg-red-50 md:hover:text-red-600 md:hover:border-red-200`
-                           : `bg-green-50 text-green-600 border-green-200 md:bg-white md:text-slate-700 md:border-slate-200 md:hover:bg-green-50 md:hover:text-green-600 md:hover:border-green-200`
-                       }`}
+            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-200
+              ${
+                inLibrary
+                  ? "bg-red-50 text-red-600 border-red-200 md:bg-green-50 md:text-green-600 md:border-green-200 md:hover:bg-red-50 md:hover:text-red-600 md:hover:border-red-200"
+                  : "bg-green-50 text-green-600 border-green-200 md:bg-white md:text-slate-700 md:border-slate-200 md:hover:bg-green-50 md:hover:text-green-600 md:hover:border-green-200"
+              }`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -989,8 +1024,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           {/* Write a Review */}
           <button
             onClick={() => document.getElementById("review-input")?.focus()}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm
-                       font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition-all duration-200"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1011,28 +1045,25 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           </button>
         </div>
 
-        {/* ── Right Column ── */}
+        {/* Right Column */}
         <div className="flex-1 min-w-0">
-          {/* Title + Meta */}
           <h1 className="text-3xl font-bold text-slate-900 mb-2 font-heading">
-            {comic.title.english || comic.title.romaji}
+            {displayTitle}
           </h1>
           <div className="flex items-center gap-4 flex-wrap mb-6">
             <span className="text-sm text-slate-500">
               <span className="font-medium text-slate-700">Author:</span>{" "}
-              {getAuthor(comic.staff?.edges || [])}
+              {displayAuthor}
             </span>
-            {comic.status && (
-              <span
-                className={`text-xs font-bold px-2.5 py-1 rounded-full border ${statusColor}`}
-              >
-                {statusLabel}
-              </span>
-            )}
+            <span
+              className={`text-xs font-bold px-2.5 py-1 rounded-full border ${statusColor}`}
+            >
+              {statusLabel}
+            </span>
             <span
               className={`text-xs font-bold px-2.5 py-1 rounded-full border ${typeColor}`}
             >
-              {typeLabel.toUpperCase()}
+              {displayType.toUpperCase()}
             </span>
           </div>
 
@@ -1051,7 +1082,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
               <p className="text-xs text-slate-400">
                 {totalVotes > 0
                   ? `${totalVotes.toLocaleString()} ${totalVotes === 1 ? "vote" : "votes"}`
-                  : "Based on AniList data"}
+                  : "Belum ada votes"}
               </p>
             </div>
             <div className="flex-1 space-y-2">
@@ -1075,15 +1106,14 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           </section>
 
           {/* Genres */}
-          {comic.genres?.length > 0 && (
+          {Array.isArray(comic?.genres) && comic.genres.length > 0 && (
             <section className="mb-8">
               <h2 className="text-lg font-bold text-slate-800 mb-3">Genres</h2>
               <div className="flex flex-wrap gap-2">
                 {comic.genres.map((g: string) => (
                   <span
                     key={g}
-                    className="px-3 py-1 bg-slate-100 text-slate-600 text-sm rounded-full
-                                          border border-slate-200 hover:bg-slate-200 transition cursor-pointer"
+                    className="px-3 py-1 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 text-xs font-medium rounded-full transition-all"
                   >
                     {g}
                   </span>
@@ -1104,13 +1134,9 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
               </span>
             </div>
 
-            {/* Comment Input */}
             <div className="bg-white border border-slate-100 rounded-2xl p-4 mb-4">
               <div className="flex gap-3">
-                <div
-                  className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center
-                               text-slate-400 font-bold text-sm shrink-0"
-                >
+                <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-sm shrink-0">
                   {session ? session.user.email?.[0]?.toUpperCase() : "?"}
                 </div>
                 <textarea
@@ -1140,8 +1166,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                   <button
                     onClick={handleComment}
                     disabled={!session || !commentText.trim() || submitting}
-                    className="px-4 py-1.5 bg-slate-800 text-white text-sm font-semibold
-                               rounded-lg hover:bg-slate-700 transition disabled:opacity-40"
+                    className="px-4 py-1.5 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-700 transition disabled:opacity-40"
                   >
                     {submitting ? "Posting..." : "Post Review"}
                   </button>
@@ -1149,7 +1174,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
               </div>
             </div>
 
-            {/* Comments List */}
             {comments.length === 0 ? (
               <div className="text-center py-10 text-slate-400 text-sm">
                 Belum ada review. Jadilah yang pertama! 🎉
