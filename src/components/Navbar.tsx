@@ -28,6 +28,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -72,6 +73,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     const timer = setTimeout(async () => {
       try {
         setSearching(true);
+        const start = Date.now();
 
         // 1. Search AniList
         const anilistPromise = fetchFromAniList(SEARCH_QUERY, { search: query })
@@ -109,6 +111,9 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
         ]);
 
         setResults([...anilistResults, ...supabaseResults]);
+        const elapsed = Date.now() - start;
+        const delay = Math.max(0, 300 - elapsed);
+        setTimeout(() => setSearching(false), delay);
       } catch {
         setResults([]);
       } finally {
@@ -256,188 +261,314 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     </svg>
   );
 
-  return (
-    <nav className="flex items-center gap-6 px-6 md:px-15 lg:px-30 xl:px-60 py-3 border-b border-slate-100 bg-white sticky top-0 z-50">
-      {/* Logo */}
-      <p
-        className="font-heading text-xl font-bold shrink-0 cursor-pointer flex items-center gap-2"
-        onClick={() => navigate("home")}
-      >
-        <img src={logo} alt="ComicList Logo" className="h-16 w-auto" />
-        <span>ComicList</span>
-      </p>
-
-      {/* Search */}
-      <div ref={searchRef} className="relative flex-1 max-w-xl hidden md:block">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={16}
-            height={16}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-            <path d="M21 21l-6 -6" />
-          </svg>
-        </span>
-        <input
-          type="text"
-          placeholder="Search Manga, Manhwa, Manhua..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-300"
-        />
-
-        {(results.length > 0 || searching) && (
-          <div
-            className="absolute top-full left-0 w-full bg-white shadow-xl rounded-xl mt-2
-                          max-h-80 overflow-y-auto z-50 border border-slate-100"
-          >
-            {searching && (
-              <p className="text-center text-slate-400 text-sm py-4">
-                Mencari...
-              </p>
-            )}
-            {results.map((item) => (
-              <button
-                key={`${item._isManual ? "manual" : "al"}-${item.id}`}
-                onClick={() => handleResultClick(item)}
-                className="flex items-center gap-3 w-full p-2.5 hover:bg-slate-50 transition text-left"
-              >
-                {item.coverImage.large ? (
-                  <img
-                    src={item.coverImage.large}
-                    className="w-10 h-14 object-cover rounded-lg flex-shrink-0"
-                    alt=""
-                  />
-                ) : (
-                  <div className="w-10 h-14 rounded-lg bg-slate-100 flex-shrink-0 flex items-center justify-center text-slate-300 text-xs">
-                    No img
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-800 truncate">
-                    {item.title.english || item.title.romaji}
-                  </p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-xs text-slate-400">
-                      {badgeLabel(item.countryOfOrigin)}
-                    </span>
-                    {item._isManual && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 bg-purple-100 text-purple-600 rounded-full">
-                        Manual
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
+  const SkeletonItem = () => (
+    <div className="flex items-center gap-3 w-full p-2.5 animate-pulse">
+      <div className="w-10 h-14 bg-slate-200 rounded-lg" />
+      <div className="flex-1 space-y-2">
+        <div className="h-3 bg-slate-200 rounded w-3/4" />
+        <div className="h-2 bg-slate-100 rounded w-1/3" />
       </div>
+    </div>
+  );
 
-      {/* Right side */}
-      <div className="flex items-center gap-2 ml-auto shrink-0">
-        {session ? (
-          <div ref={dropdownRef} className="relative">
-            <button
-              onClick={() => setShowDropdown((v) => !v)}
-              title={username}
-              className={`w-9 h-9 rounded-full overflow-hidden bg-slate-900 text-white font-bold text-sm
-                   flex items-center justify-center border-2 transition
-                   ${showDropdown ? "border-indigo-400" : "border-transparent"}`}
-            >
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                initial
-              )}
-            </button>
+  return (
+    <>
+      <nav className="flex items-center gap-4 px-4 md:px-10 lg:px-20 xl:px-40 py-3 border-b border-slate-100 bg-white sticky top-0 z-50">
+        {showMobileSearch && (
+          <div className="fixed inset-0 bg-white z-[60] p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <button onClick={() => setShowMobileSearch(false)}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width={24}
+                  height={24}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M5 12l14 0" />
+                  <path d="M5 12l6 6" />
+                  <path d="M5 12l6 -6" />
+                </svg>
+              </button>
+              <input
+                autoFocus
+                type="text"
+                placeholder="Search..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
 
-            {showDropdown && (
-              <div
-                className="absolute right-0 top-[calc(100%+0.5rem)] w-52 bg-white
-                     rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50"
-              >
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 shrink-0">
-                    {avatarUrl ? (
-                      <img
-                        src={avatarUrl}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-slate-500">
-                        {initial}
-                      </div>
-                    )}
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-                      Logged in
-                    </p>
-                    <p className="text-sm font-semibold text-slate-800 truncate">
-                      {username}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="py-1">
-                  {MENU_ITEMS.map(({ label, page, icon }) => (
+            {/* Results */}
+            <div className="space-y-2 max-h-[70vh] overflow-y-auto">
+              {searching
+                ? Array.from({ length: 6 }).map((_, i) => (
+                    <SkeletonItem key={i} />
+                  ))
+                : results.map((item) => (
                     <button
-                      key={page}
-                      onClick={() => go(page)}
-                      className={`w-full text-left px-4 py-2 text-sm transition hover:bg-slate-100 flex items-center gap-3
-                           ${currentPage === page ? "text-indigo-600 bg-indigo-50 font-semibold" : "text-slate-600"}`}
+                      key={item.id}
+                      onClick={() => {
+                        handleResultClick(item);
+                        setShowMobileSearch(false);
+                      }}
+                      className="flex items-center gap-3 w-full p-2 hover:bg-slate-100 rounded-lg"
                     >
-                      <span className="flex items-center opacity-70">
-                        {icon}
-                      </span>
-                      <span>{label}</span>
+                      <img
+                        src={item.coverImage.large}
+                        className="w-10 h-14 object-cover rounded"
+                      />
+                      <p className="text-sm text-left">
+                        {item.title.english || item.title.romaji}
+                      </p>
                     </button>
                   ))}
-                </div>
-
-                <div className="h-px bg-slate-100" />
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition flex items-center gap-3"
-                >
-                  <span className="opacity-70">{logoutIcon}</span>
-                  <span className="font-medium">Log Out</span>
-                </button>
-              </div>
-            )}
+            </div>
           </div>
-        ) : (
-          <>
-            <span
-              onClick={() => navigate("auth")}
-              className="text-sm text-slate-600 font-medium cursor-pointer hover:text-slate-900 transition hidden sm:block"
-            >
-              Log In
-            </span>
-            <button
-              onClick={() => navigate("auth")}
-              className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition"
-            >
-              Sign Up
-            </button>
-          </>
         )}
-      </div>
-    </nav>
+        {/* Logo */}
+        <p
+          className="font-heading text-xl font-bold shrink-0 cursor-pointer flex items-center gap-2"
+          onClick={() => navigate("home")}
+        >
+          <img src={logo} alt="ComicList Logo" className="h-16 w-auto" />
+          <span>ComicList</span>
+        </p>
+
+        {/* Search */}
+        <div
+          ref={searchRef}
+          className="relative flex-1 max-w-xl hidden lg:block"
+        >
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={16}
+              height={16}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+              <path d="M21 21l-6 -6" />
+            </svg>
+          </span>
+          <input
+            type="text"
+            placeholder="Search Manga, Manhwa, Manhua..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm
+                     focus:outline-none focus:ring-2 focus:ring-slate-300"
+          />
+
+          {(results.length > 0 || searching) && (
+            <div
+              className="absolute top-full left-0 w-full bg-white shadow-xl rounded-xl mt-2
+                          max-h-80 overflow-y-auto z-50 border border-slate-100"
+            >
+              {searching && (
+                <>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <SkeletonItem key={i} />
+                  ))}
+                </>
+              )}
+              {results.map((item) => (
+                <button
+                  key={`${item._isManual ? "manual" : "al"}-${item.id}`}
+                  onClick={() => handleResultClick(item)}
+                  className="flex items-center gap-3 w-full p-2.5 hover:bg-slate-50 transition text-left"
+                >
+                  {item.coverImage.large ? (
+                    <img
+                      src={item.coverImage.large}
+                      className="w-10 h-14 object-cover rounded-lg flex-shrink-0"
+                      alt=""
+                    />
+                  ) : (
+                    <div className="w-10 h-14 rounded-lg bg-slate-100 flex-shrink-0 flex items-center justify-center text-slate-300 text-xs">
+                      No img
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-800 truncate">
+                      {item.title.english || item.title.romaji}
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="text-xs text-slate-400">
+                        {badgeLabel(item.countryOfOrigin)}
+                      </span>
+                      {item._isManual && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 bg-purple-100 text-purple-600 rounded-full">
+                          Manual
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right side */}
+        <div className="flex items-center gap-2 ml-auto shrink-0">
+          {/* Mobile Search Button */}
+          <button
+            onClick={() => setShowMobileSearch(true)}
+            className="p-2 rounded-lg hover:bg-slate-100 lg:hidden"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={16}
+              height={16}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+              <path d="M21 21l-6 -6" />
+            </svg>
+          </button>
+
+          {session ? (
+            <div ref={dropdownRef} className="relative">
+              <button
+                onClick={() => setShowDropdown((v) => !v)}
+                title={username}
+                className={`w-9 h-9 rounded-full overflow-hidden bg-slate-900 text-white font-bold text-sm
+                   flex items-center justify-center border-2 transition
+                   ${showDropdown ? "border-indigo-400" : "border-transparent"}`}
+              >
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  initial
+                )}
+              </button>
+
+              {showDropdown && (
+                <div
+                  className="absolute right-0 top-[calc(100%+0.5rem)] w-52 bg-white
+                     rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50"
+                >
+                  <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 shrink-0">
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-slate-500">
+                          {initial}
+                        </div>
+                      )}
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                        Logged in
+                      </p>
+                      <p className="text-sm font-semibold text-slate-800 truncate">
+                        {username}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Desktop menu */}
+                  <div className="py-1 hidden lg:block">
+                    {MENU_ITEMS.map(({ label, page, icon }) => (
+                      <button
+                        key={page}
+                        onClick={() => go(page)}
+                        className={`w-full text-left px-4 py-2 text-sm transition hover:bg-slate-100 flex items-center gap-3
+                        ${currentPage === page ? "text-indigo-600 bg-indigo-50 font-semibold" : "text-slate-600"}`}
+                      >
+                        <span className="flex items-center opacity-70">
+                          {icon}
+                        </span>
+                        <span>{label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Mobile logout only */}
+                  <div className="py-1 lg:hidden">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition flex items-center gap-3"
+                    >
+                      <span className="opacity-70">{logoutIcon}</span>
+                      <span className="font-medium">Log Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <span
+                onClick={() => navigate("auth")}
+                className="text-sm text-slate-600 font-medium cursor-pointer hover:text-slate-900 transition hidden sm:block"
+              >
+                Log In
+              </span>
+              <button
+                onClick={() => navigate("auth")}
+                className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
+        </div>
+      </nav>
+
+      {session && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 lg:hidden shadow-[0_-2px_10px_rgba(0,0,0,0.09)] ">
+          <div className="flex justify-around items-center h-14">
+            {MENU_ITEMS.map(({ label, page, icon }) => {
+              const active = currentPage === page;
+
+              return (
+                <button
+                  key={page}
+                  onClick={() => navigate(page)}
+                  className={`flex flex-col items-center justify-center text-xs ${
+                    active ? "text-indigo-600" : "text-slate-400"
+                  }`}
+                >
+                  <div className={`${active ? "scale-110" : ""} transition`}>
+                    {icon}
+                  </div>
+                  <span className="mt-0.5">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
