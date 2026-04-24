@@ -102,14 +102,16 @@ const StarRating = ({
   onHover: (n: number) => void;
   onClick: (n: number) => void;
 }) => (
-  <div className="flex gap-0.5">
+  <div className="flex gap-0.5 flex-wrap">
     {Array.from({ length: 10 }).map((_, i) => (
       <button
         key={i}
         onMouseEnter={() => onHover(i + 1)}
         onMouseLeave={() => onHover(0)}
         onClick={() => onClick(i + 1)}
-        className={`text-xl transition-colors cursor-pointer ${(hover || value) >= i + 1 ? "text-amber-400" : "text-slate-200"}`}
+        className={`text-lg lg:text-xl transition-colors cursor-pointer ${
+          (hover || value) >= i + 1 ? "text-amber-400" : "text-slate-200"
+        }`}
         style={{ background: "none", border: "none", padding: "0 1px" }}
       >
         ★
@@ -130,16 +132,18 @@ const RatingBar = ({
   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
     <div className="flex items-center gap-2 text-sm">
-      <span className="text-slate-500 w-14 text-right shrink-0">
-        {label} stars
+      <span className="text-slate-500 w-10 lg:w-14 text-right shrink-0 text-xs lg:text-sm">
+        {label}★
       </span>
-      <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+      <div className="flex-1 bg-slate-100 rounded-full h-1.5 lg:h-2 overflow-hidden">
         <div
-          className="h-2 bg-amber-400 rounded-full transition-all duration-500"
+          className="h-full bg-amber-400 rounded-full transition-all duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-slate-400 w-8 text-right shrink-0">{pct}%</span>
+      <span className="text-slate-400 w-6 lg:w-8 text-right shrink-0 text-xs">
+        {pct}%
+      </span>
     </div>
   );
 };
@@ -177,7 +181,7 @@ const CommentItem = ({
     <div className="space-y-3">
       <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 shadow-inner bg-slate-200">
+          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-full overflow-hidden shrink-0 shadow-inner bg-slate-200">
             {comment.profiles?.avatar_url ? (
               <img
                 src={comment.profiles.avatar_url}
@@ -185,7 +189,7 @@ const CommentItem = ({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-white bg-indigo-600 font-bold">
+              <div className="w-full h-full flex items-center justify-center text-white bg-indigo-600 font-bold text-sm">
                 {comment.profiles?.username?.[0]?.toUpperCase() ?? "?"}
               </div>
             )}
@@ -229,19 +233,19 @@ const CommentItem = ({
                 {comment.content}
               </p>
             )}
-            <div className="flex items-center gap-4 mt-3">
+            <div className="flex items-center gap-3 lg:gap-4 mt-3 flex-wrap">
               <button
                 onClick={() => onLike(comment.id)}
                 className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 transition"
               >
-                {LikeIcon && <LikeIcon size={16} />}
+                {LikeIcon && <LikeIcon size={15} />}
                 <span>{comment.like_count}</span>
               </button>
               <button
                 onClick={() => onReply(comment.id)}
                 className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 transition"
               >
-                {ReplyIcon && <ReplyIcon size={16} />}
+                {ReplyIcon && <ReplyIcon size={15} />}
                 <span>Reply</span>
               </button>
               {replies.length > 0 && (
@@ -279,7 +283,7 @@ const CommentItem = ({
       </div>
 
       {showReplies && replies.length > 0 && (
-        <div className="ml-10 pl-4 border-l-2 border-slate-200 space-y-3">
+        <div className="ml-8 lg:ml-10 pl-3 lg:pl-4 border-l-2 border-slate-200 space-y-3">
           {replies.map((r) => (
             <div
               key={r.id}
@@ -299,7 +303,7 @@ const CommentItem = ({
                     </div>
                   )}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="font-bold text-slate-700 text-[11px]">
                       {r.profiles?.username}
@@ -343,7 +347,7 @@ const CommentItem = ({
                     className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-400 hover:text-indigo-600"
                   >
                     {LikeIcon && (
-                      <LikeIcon size={14} className="inline-block" />
+                      <LikeIcon size={13} className="inline-block" />
                     )}
                     <span>{r.like_count}</span>
                   </button>
@@ -376,7 +380,7 @@ const CommentItem = ({
   );
 };
 
-// Main 
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   const [comic, setComic] = useState<any>(null);
@@ -404,10 +408,8 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     const isUUID = typeof comicId === "string" && comicId.includes("-");
 
     if (isUUID) {
-      // Komik manual — langsung ambil dari Supabase
       loadManualComic(comicId as string);
     } else {
-      // Komik AniList — fetch dari API dulu
       fetchFromAniList(DETAIL_QUERY, { id: comicId })
         .then(async (data) => {
           setComic(data.Media);
@@ -427,7 +429,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     }
   }, [comicId]);
 
-  // Load komik manual dari Supabase
   const loadManualComic = async (id: string) => {
     try {
       const { data, error } = await supabase
@@ -438,7 +439,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
 
       if (error || !data) throw new Error("Komik tidak ditemukan");
 
-      // Format supaya struktur sama kayak AniList comic object
       setComic({
         title: { english: data.title, romaji: data.title },
         coverImage: { large: data.cover_url, extraLarge: data.cover_url },
@@ -447,7 +447,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
         genres: data.genres || [],
         countryOfOrigin:
           data.type === "manhwa" ? "KR" : data.type === "manhua" ? "CN" : "JP",
-        _type: data.type, // simpan type asli
+        _type: data.type,
         staff: {
           edges: data.author
             ? [{ role: "Story & Art", node: { name: { full: data.author } } }]
@@ -473,7 +473,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     }
   };
 
-  // Realtime listeners
   useEffect(() => {
     if (!supabaseId) return;
 
@@ -844,13 +843,14 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     }
   });
 
+  // ── Loading ──
   if (loading)
     return (
-      <div className="max-w-screen-xl mx-auto px-6 py-8 flex gap-8 animate-pulse">
-        <div className="w-64 shrink-0">
-          <div className="bg-slate-200 rounded-2xl aspect-[2/3]" />
+      <div className="max-w-screen-xl mx-auto px-4 lg:px-6 py-8 flex flex-col lg:flex-row gap-6 animate-pulse">
+        <div className="w-full lg:w-64 lg:shrink-0">
+          <div className="bg-slate-200 rounded-2xl w-full aspect-[2/3] max-w-xs mx-auto lg:max-w-none" />
         </div>
-        <div className="flex-1 space-y-4 pt-4">
+        <div className="flex-1 space-y-4 pt-2">
           <div className="h-8 bg-slate-200 rounded w-2/3" />
           <div className="h-4 bg-slate-100 rounded w-1/3" />
           <div className="h-32 bg-slate-100 rounded" />
@@ -872,7 +872,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       </div>
     );
 
-  // Resolve display values — handle both AniList & manual comic shapes
+  // Resolve display values
   const displayTitle =
     comic.title?.english || comic.title?.romaji || "Untitled";
   const displayAuthor = getAuthor(comic.staff?.edges || []);
@@ -900,12 +900,89 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     : cleanDescription(comic.description, 800);
   const cover = comic.coverImage?.extraLarge || comic.coverImage?.large;
 
+  // Shared badge/button components for reuse
+  const BadgeRow = () => (
+    <div className="flex flex-wrap items-center gap-2">
+      <span
+        className={`text-xs font-bold px-2.5 py-1 rounded-full border ${statusColor}`}
+      >
+        {statusLabel}
+      </span>
+      <span
+        className={`text-xs font-bold px-2.5 py-1 rounded-full border ${typeColor}`}
+      >
+        {displayType.toUpperCase()}
+      </span>
+    </div>
+  );
+
+  const LibraryButton = ({ className = "" }: { className?: string }) => (
+    <button
+      onClick={handleToggleLibrary}
+      disabled={libraryLoading}
+      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-200
+        ${
+          inLibrary
+            ? "bg-red-50 text-red-600 border-red-200"
+            : "bg-green-50 text-green-600 border-green-200"
+        } ${className}`}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={15}
+        height={15}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
+        <path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
+        <path d="M3 6v13" />
+        <path d="M12 6v13" />
+        <path d="M21 6v13" />
+      </svg>
+      {libraryLoading
+        ? "..."
+        : inLibrary
+          ? "Remove from Library"
+          : "Add to Library"}
+    </button>
+  );
+
+  const ReviewButton = ({ className = "" }: { className?: string }) => (
+    <button
+      onClick={() => document.getElementById("review-input")?.focus()}
+      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition-all duration-200 ${className}`}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={15}
+        height={15}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+        <path d="M13.5 6.5l4 4" />
+      </svg>
+      Write a Review
+    </button>
+  );
+
   return (
-    <div className="max-w-screen-xl mx-auto px-6 py-6">
-      {/* Back */}
+    <div className="max-w-screen-xl mx-auto px-4 lg:px-6 py-6 pb-24 lg:pb-8">
+      {/* Back button */}
       <button
         onClick={() => navigate("home")}
-        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 mb-6 transition"
+        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 mb-5 transition"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -924,43 +1001,77 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
         Back to Browse
       </button>
 
-      {/* Manual badge */}
-      {isManual && (
-        <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-full text-xs font-semibold text-purple-600">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={12}
-            height={12}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M12 5l0 14" />
-            <path d="M5 12l14 0" />
-          </svg>
-          Uploaded Manual
-        </div>
-      )}
+      {/* ── Main Layout ── */}
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+        {/* ── LEFT COLUMN ── */}
+        <div className="w-full lg:w-64 lg:shrink-0 lg:sticky lg:top-20 space-y-3 lg:space-y-4">
+          {/* Cover + Mobile Title (side by side on mobile) */}
+          <div className="flex gap-4 lg:block">
+            {/* Cover Image */}
+            <div className="w-28 sm:w-32 lg:w-full rounded-2xl overflow-hidden shadow-lg shrink-0">
+              {cover ? (
+                <img
+                  src={cover}
+                  alt={displayTitle}
+                  className="w-full object-cover"
+                />
+              ) : (
+                <div className="w-full aspect-[2/3] bg-slate-100 flex items-center justify-center text-slate-300 text-xs">
+                  No Cover
+                </div>
+              )}
+            </div>
 
-      <div className="flex gap-8 items-start">
-        {/* Left Column */}
-        <div className="w-64 shrink-0 sticky top-20 space-y-4">
-          <div className="rounded-2xl overflow-hidden shadow-lg">
-            {cover ? (
-              <img
-                src={cover}
-                alt={displayTitle}
-                className="w-full object-cover"
-              />
-            ) : (
-              <div className="w-full aspect-[2/3] bg-slate-100 flex items-center justify-center text-slate-300 text-sm">
-                No Cover
+            {/* Mobile-only: Title + Author + Badges (next to cover) */}
+            <div className="flex-1 min-w-0 lg:hidden flex flex-col justify-between py-1">
+              <div>
+                {/* Manual badge on mobile */}
+                {isManual && (
+                  <div className="mb-2 inline-flex items-center gap-1 px-2 py-1 bg-purple-50 border border-purple-200 rounded-full text-[10px] font-semibold text-purple-600">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width={10}
+                      height={10}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M12 5l0 14" />
+                      <path d="M5 12l14 0" />
+                    </svg>
+                    Manual Upload
+                  </div>
+                )}
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 font-heading leading-tight">
+                  {displayTitle}
+                </h1>
+                <p className="text-xs text-slate-500 mb-2">
+                  <span className="font-medium text-slate-700">Author:</span>{" "}
+                  {displayAuthor}
+                </p>
+                <BadgeRow />
               </div>
-            )}
+
+              {/* Average score mini on mobile */}
+              {avgScore && (
+                <div className="flex items-center gap-1 mt-2">
+                  <span className="text-amber-400 text-base">★</span>
+                  <span className="text-lg font-bold text-slate-800">
+                    {avgScore}
+                  </span>
+                  <span className="text-slate-400 text-xs">/10</span>
+                  {totalVotes > 0 && (
+                    <span className="text-slate-400 text-xs ml-1">
+                      ({totalVotes})
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Rate This */}
@@ -1003,97 +1114,67 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
             )}
           </div>
 
-          {/* Add to Library */}
-          <button
-            onClick={handleToggleLibrary}
-            disabled={libraryLoading}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-200
-              ${
-                inLibrary
-                  ? "bg-red-50 text-red-600 border-red-200 md:bg-green-50 md:text-green-600 md:border-green-200 md:hover:bg-red-50 md:hover:text-red-600 md:hover:border-red-200"
-                  : "bg-green-50 text-green-600 border-green-200 md:bg-white md:text-slate-700 md:border-slate-200 md:hover:bg-green-50 md:hover:text-green-600 md:hover:border-green-200"
-              }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={16}
-              height={16}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
-              <path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
-              <path d="M3 6v13" />
-              <path d="M12 6v13" />
-              <path d="M21 6v13" />
-            </svg>
-            {libraryLoading
-              ? "Processing..."
-              : inLibrary
-                ? "Remove from Library"
-                : "Add to Library"}
-          </button>
-
-          {/* Write a Review */}
-          <button
-            onClick={() => document.getElementById("review-input")?.focus()}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition-all duration-200"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={16}
-              height={16}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-              <path d="M13.5 6.5l4 4" />
-            </svg>
-            Write a Review
-          </button>
+          {/* Action Buttons — side by side on mobile, stacked on desktop */}
+          <div className="flex gap-2 lg:block lg:space-y-3">
+            <LibraryButton className="flex-1 lg:w-full" />
+            <ReviewButton className="flex-1 lg:w-full" />
+          </div>
         </div>
 
-        {/* Right Column */}
-        <div className="flex-1 min-w-0">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2 font-heading">
-            {displayTitle}
-          </h1>
-          <div className="flex items-center gap-4 flex-wrap mb-6">
-            <span className="text-sm text-slate-500">
-              <span className="font-medium text-slate-700">Author:</span>{" "}
-              {displayAuthor}
-            </span>
-            <span
-              className={`text-xs font-bold px-2.5 py-1 rounded-full border ${statusColor}`}
-            >
-              {statusLabel}
-            </span>
-            <span
-              className={`text-xs font-bold px-2.5 py-1 rounded-full border ${typeColor}`}
-            >
-              {displayType.toUpperCase()}
-            </span>
+        {/* ── RIGHT COLUMN ── */}
+        <div className="flex-1 min-w-0 w-full">
+          {/* Desktop-only: Title + Author + Badges */}
+          <div className="hidden lg:block">
+            {isManual && (
+              <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-full text-xs font-semibold text-purple-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width={12}
+                  height={12}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M12 5l0 14" />
+                  <path d="M5 12l14 0" />
+                </svg>
+                Uploaded Manual
+              </div>
+            )}
+            <h1 className="text-3xl font-bold text-slate-900 mb-2 font-heading">
+              {displayTitle}
+            </h1>
+            <div className="flex items-center gap-4 flex-wrap mb-6">
+              <span className="text-sm text-slate-500">
+                <span className="font-medium text-slate-700">Author:</span>{" "}
+                {displayAuthor}
+              </span>
+              <span
+                className={`text-xs font-bold px-2.5 py-1 rounded-full border ${statusColor}`}
+              >
+                {statusLabel}
+              </span>
+              <span
+                className={`text-xs font-bold px-2.5 py-1 rounded-full border ${typeColor}`}
+              >
+                {displayType.toUpperCase()}
+              </span>
+            </div>
           </div>
 
           {/* Rating Distribution */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 mb-6 flex gap-6">
-            <div className="text-center shrink-0 pr-6 border-r border-slate-100">
-              <div className="flex items-center gap-1 mb-1">
-                <span className="text-amber-400 text-2xl">★</span>
-                <span className="text-4xl font-bold text-slate-800">
+          <div className="bg-white border border-slate-100 rounded-2xl p-4 lg:p-5 mb-6 flex flex-col sm:flex-row gap-4 lg:gap-6">
+            <div className="flex items-center sm:flex-col sm:items-center gap-3 sm:gap-0 sm:text-center sm:shrink-0 sm:pr-6 sm:border-r sm:border-slate-100">
+              <div className="flex items-center gap-1">
+                <span className="text-amber-400 text-xl lg:text-2xl">★</span>
+                <span className="text-3xl lg:text-4xl font-bold text-slate-800">
                   {avgScore ?? "—"}
                 </span>
-                <span className="text-slate-400 text-lg self-end mb-1">
+                <span className="text-slate-400 text-base lg:text-lg self-end mb-0.5">
                   /10
                 </span>
               </div>
@@ -1103,7 +1184,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                   : "Belum ada votes"}
               </p>
             </div>
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-1.5 lg:space-y-2">
               {[10, 9, 8, 7, 6].map((star) => (
                 <RatingBar
                   key={star}
@@ -1117,7 +1198,9 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
 
           {/* Synopsis */}
           <section className="mb-6">
-            <h2 className="text-lg font-bold text-slate-800 mb-3">Synopsis</h2>
+            <h2 className="text-base lg:text-lg font-bold text-slate-800 mb-3">
+              Synopsis
+            </h2>
             <p className="text-slate-600 leading-relaxed text-sm whitespace-pre-line">
               {description}
             </p>
@@ -1125,8 +1208,10 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
 
           {/* Genres */}
           {Array.isArray(comic?.genres) && comic.genres.length > 0 && (
-            <section className="mb-8">
-              <h2 className="text-lg font-bold text-slate-800 mb-3">Genres</h2>
+            <section className="mb-6 lg:mb-8">
+              <h2 className="text-base lg:text-lg font-bold text-slate-800 mb-3">
+                Genres
+              </h2>
               <div className="flex flex-wrap gap-2">
                 {comic.genres.map((g: string) => (
                   <span
@@ -1143,18 +1228,32 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           {/* Community Reviews */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-slate-800">
+              <h2 className="text-base lg:text-lg font-bold text-slate-800">
                 Community Reviews
               </h2>
               <span className="text-sm text-slate-400">
-                Showing {comments.length}{" "}
-                {comments.length === 1 ? "review" : "reviews"}
+                {comments.length} {comments.length === 1 ? "review" : "reviews"}
               </span>
             </div>
 
-            <div className="bg-white border border-slate-100 rounded-2xl p-4 mb-4">
-              <div className="flex gap-3">
-                <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-sm shrink-0">
+            {/* Reply to indicator */}
+            {replyTo && (
+              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-xl">
+                <span className="text-xs text-indigo-600 font-medium">
+                  Replying to comment
+                </span>
+                <button
+                  onClick={() => setReplyTo(null)}
+                  className="text-xs text-slate-400 hover:text-red-500 ml-auto"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+
+            <div className="bg-white border border-slate-100 rounded-2xl p-3 lg:p-4 mb-4">
+              <div className="flex gap-2 lg:gap-3">
+                <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-sm shrink-0">
                   {session ? session.user.email?.[0]?.toUpperCase() : "?"}
                 </div>
                 <textarea
@@ -1184,7 +1283,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                   <button
                     onClick={handleComment}
                     disabled={!session || !commentText.trim() || submitting}
-                    className="px-4 py-1.5 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-700 transition disabled:opacity-40"
+                    className="px-4 py-1.5 bg-slate-800 text-white text-xs lg:text-sm font-semibold rounded-lg hover:bg-slate-700 transition disabled:opacity-40"
                   >
                     {submitting ? "Posting..." : "Post Review"}
                   </button>
@@ -1197,7 +1296,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                 Belum ada review. Jadilah yang pertama! 🎉
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-5 lg:space-y-6">
                 {parentComments.map((c) => (
                   <CommentItem
                     key={c.id}
