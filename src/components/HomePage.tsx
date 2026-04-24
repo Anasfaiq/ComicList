@@ -203,6 +203,11 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [topContributors, setTopContributors] = useState<any[]>([]);
   const [recentReviews, setRecentReviews] = useState<any[]>([]);
+  const [openSection, setOpenSection] = useState<string | null>(null);
+
+  const toggleSection = (section: string) => {
+    setOpenSection((prev) => (prev === section ? null : section));
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -278,18 +283,75 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
     setRecentReviews(result);
   };
 
+  const AccordionSection = ({
+    id,
+    title,
+    icon,
+    children,
+  }: {
+    id: string;
+    title: string;
+    icon: React.ReactNode;
+    children: React.ReactNode;
+  }) => {
+    const isOpen = openSection === id;
+
+    return (
+      <div className="bg-white border border-slate-100 rounded-2xl">
+        <button
+          onClick={() => toggleSection(id)}
+          className="w-full flex items-center justify-between p-4"
+        >
+          <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
+            {icon}
+            <span>{title}</span>
+          </div>
+
+          {/* Chevron */}
+          <span className="lg:hidden text-slate-400">
+            <Chevron isOpen={isOpen} />
+          </span>
+        </button>
+
+        {/* Animated Content */}
+        <div
+          className={`px-4 overflow-hidden transition-all duration-300 ease-in-out ${
+            isOpen ? "max-h-96 pb-4" : "max-h-0"
+          } lg:max-h-none lg:block`}
+        >
+          {children}
+        </div>
+      </div>
+    );
+  };
+
+  const Chevron = ({ isOpen }: { isOpen: boolean }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={`w-4 h-4 transition-transform duration-300 ease-in-out ${
+        isOpen ? "rotate-180" : ""
+      }`}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7l-7-7" />
+    </svg>
+  );
+
   return (
     <>
-      <div className="max-w-screen-xl mx-auto px-6 py-6 flex gap-6">
+      <div className="max-w-screen-xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6">
         {/* Main Content  */}
         <div className="flex-1 min-w-0">
           {/* Filter Tabs */}
-          <div className="tab-bar">
+          <div className="tab-bar flex gap-2 mb-2 overflow-auto">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`tab-btn${activeTab === tab.id ? " tab-btn--active" : ""}`}
+                className={`tab-btn rounded-xl px-4 py-2 flex items-center gap-2 whitespace-nowrap border border-slate-200 font-accent font-medium text-sm transition-all cursor-pointer hover:bg-slate-200 ${activeTab === tab.id ? " tab-btn--active" : ""}`}
               >
                 <span>{TAB_ICONS[tab.id]}</span>
                 {tab.label}
@@ -323,8 +385,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
         </div>
 
         {/* Sidebar */}
-        <aside className="w-64 shrink-0 hidden lg:flex flex-col gap-4">
-          {/* Can't find a title? */}
+        <aside className="w-full lg:w-64 shrink-0 flex flex-col gap-4">
           <div className="bg-slate-800 text-white rounded-2xl p-5">
             <div className="text-2xl mb-3">+</div>
             <h3 className="font-bold text-base mb-1">Can't find a title?</h3>
@@ -341,11 +402,11 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
           </div>
 
           {/* Top Contributors */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5">
-            <h3 className="font-bold text-slate-800 mb-4 text-sm flex items-center gap-2">
-              {sidebarIcons.thropy}
-              <span>Top Contributors</span>
-            </h3>
+          <AccordionSection
+            id="contributors"
+            title="Top Contributors"
+            icon={sidebarIcons.thropy}
+          >
             <div className="space-y-3">
               {topContributors.map((c) => (
                 <div key={c.rank} className="flex items-start gap-3">
@@ -363,14 +424,14 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
                 </div>
               ))}
             </div>
-          </div>
+          </AccordionSection>
 
           {/* Recent Reviews */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5">
-            <h3 className="font-bold text-slate-800 mb-4 text-sm flex items-center gap-2">
-              {sidebarIcons.bubble}
-              <span>Recent Reviews</span>
-            </h3>
+          <AccordionSection
+            id="reviews"
+            title="Recent Reviews"
+            icon={sidebarIcons.bubble}
+          >
             <div className="space-y-4">
               {recentReviews.map((r, i) => (
                 <div key={i}>
@@ -386,7 +447,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
                 </div>
               ))}
             </div>
-          </div>
+          </AccordionSection>
         </aside>
       </div>
 
