@@ -28,7 +28,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -116,8 +115,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
         setTimeout(() => setSearching(false), delay);
       } catch {
         setResults([]);
-      } finally {
-        setSearching(false);
       }
     }, 450);
     return () => clearTimeout(timer);
@@ -161,7 +158,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
   const handleResultClick = (item: SearchResult) => {
     setResults([]);
     setQuery("");
-    navigate("detail", item.id);
+    navigate("detail", Number(item.id));
   };
 
   const initial = session?.user?.email?.[0]?.toUpperCase() ?? "?";
@@ -274,78 +271,19 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
   return (
     <>
       <nav className="flex items-center gap-4 px-4 md:px-10 lg:px-20 xl:px-40 py-3 border-b border-slate-100 bg-white sticky top-0 z-50">
-        {showMobileSearch && (
-          <div className="fixed inset-0 bg-white z-[60] p-4">
-            <div className="flex items-center gap-2 mb-4">
-              <button onClick={() => setShowMobileSearch(false)}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width={24}
-                  height={24}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <path d="M5 12l14 0" />
-                  <path d="M5 12l6 6" />
-                  <path d="M5 12l6 -6" />
-                </svg>
-              </button>
-              <input
-                autoFocus
-                type="text"
-                placeholder="Search..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-
-            {/* Results */}
-            <div className="space-y-2 max-h-[70vh] overflow-y-auto">
-              {searching
-                ? Array.from({ length: 6 }).map((_, i) => (
-                    <SkeletonItem key={i} />
-                  ))
-                : results.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        handleResultClick(item);
-                        setShowMobileSearch(false);
-                      }}
-                      className="flex items-center gap-3 w-full p-2 hover:bg-slate-100 rounded-lg"
-                    >
-                      <img
-                        src={item.coverImage.large}
-                        className="w-10 h-14 object-cover rounded"
-                      />
-                      <p className="text-sm text-left">
-                        {item.title.english || item.title.romaji}
-                      </p>
-                    </button>
-                  ))}
-            </div>
-          </div>
-        )}
         {/* Logo */}
         <p
           className="font-heading text-xl font-bold shrink-0 cursor-pointer flex items-center gap-2"
           onClick={() => navigate("home")}
         >
           <img src={logo} alt="ComicList Logo" className="h-16 w-auto" />
-          <span>ComicList</span>
+          <span className="lg:block hidden">ComicList</span>
         </p>
 
         {/* Search */}
         <div
           ref={searchRef}
-          className="relative flex-1 max-w-xl hidden lg:block"
+          className="relative flex-1 max-w-xl"
         >
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
             <svg
@@ -369,7 +307,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
             placeholder="Search Manga, Manhwa, Manhua..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm
+            className="w-full lg:w-full md:w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm
                      focus:outline-none focus:ring-2 focus:ring-slate-300"
           />
 
@@ -425,28 +363,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
 
         {/* Right side */}
         <div className="flex items-center gap-2 ml-auto shrink-0">
-          {/* Mobile Search Button */}
-          <button
-            onClick={() => setShowMobileSearch(true)}
-            className="p-2 rounded-lg hover:bg-slate-100 lg:hidden"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={16}
-              height={16}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-              <path d="M21 21l-6 -6" />
-            </svg>
-          </button>
-
           {session ? (
             <div ref={dropdownRef} className="relative">
               <button

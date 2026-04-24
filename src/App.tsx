@@ -16,11 +16,13 @@ const App = () => {
     number | string | null
   >(null);
   const currentPageRef = useRef<Page>("home");
+  const [navKey, setNavKey] = useState(0);
 
   const navigate = (page: Page, comicId?: number | string) => {
     setCurrentPage(page);
     currentPageRef.current = page;
     if (comicId !== undefined) setSelectedComicId(comicId);
+    setNavKey((k) => k + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -52,7 +54,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <Navbar session={session} currentPage={currentPage} navigate={navigate} />
+      <Navbar key={navKey} session={session} currentPage={currentPage} navigate={navigate} />
 
       {currentPage === "home" && (
         <HomePage navigate={navigate} session={session} />

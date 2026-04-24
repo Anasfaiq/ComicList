@@ -67,7 +67,24 @@ const Dashboard = ({ session, navigate }: DashboardProps) => {
           className="flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200
                      rounded-lg text-sm text-slate-600 font-medium hover:bg-slate-50 transition"
         >
-          ← Ke Home
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={18}
+            height={18}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M5 12l14 0" />
+            <path d="M5 12l6 6" />
+            <path d="M5 12l6 -6" />
+          </svg>
+          Ke Home
         </button>
       </div>
 
