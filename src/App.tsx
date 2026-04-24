@@ -51,7 +51,7 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 pb-20">
       <Navbar session={session} currentPage={currentPage} navigate={navigate} />
 
       {currentPage === "home" && (
