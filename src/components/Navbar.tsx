@@ -11,35 +11,37 @@ interface NavbarProps {
   navigate: NavigateFn;
 }
 
+// Unified result type buat gabungin AniList + Supabase
+interface SearchResult {
+  id: number | string;
+  title: { english: string | null; romaji: string };
+  coverImage: { large: string };
+  countryOfOrigin: string;
+  _isManual?: boolean;
+}
+
 const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  // Fetch data profile untuk ambil avatar terbaru
   useEffect(() => {
     if (!session?.user?.id) return;
 
-    // Fungsi ambil avatar awal
     const getAvatar = async () => {
       const { data } = await supabase
         .from("profiles")
         .select("avatar_url")
         .eq("id", session.user.id)
         .single();
-
-      if (data?.avatar_url) {
-        setAvatarUrl(data.avatar_url);
-      }
+      if (data?.avatar_url) setAvatarUrl(data.avatar_url);
     };
-
     getAvatar();
 
-    // Setup Realtime Listener
     const channel = supabase
       .channel(`public:profiles:id=eq.${session.user.id}`)
       .on(
@@ -51,9 +53,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
           filter: `id=eq.${session.user.id}`,
         },
         (payload) => {
-          if (payload.new) {
-            setAvatarUrl(payload.new.avatar_url);
-          }
+          if (payload.new) setAvatarUrl(payload.new.avatar_url);
         },
       )
       .subscribe();
@@ -63,7 +63,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     };
   }, [session]);
 
-  // Search debounce
+  // Dual search: AniList + Supabase manual comics
   useEffect(() => {
     if (query.length < 2) {
       setResults([]);
@@ -72,8 +72,43 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     const timer = setTimeout(async () => {
       try {
         setSearching(true);
-        const data = await fetchFromAniList(SEARCH_QUERY, { search: query });
-        setResults(data?.Page?.media || []);
+
+        // 1. Search AniList
+        const anilistPromise = fetchFromAniList(SEARCH_QUERY, { search: query })
+          .then((data) => (data?.Page?.media || []) as SearchResult[])
+          .catch(() => [] as SearchResult[]);
+
+        // 2. Search Supabase — komik manual (external_id null)
+        const supabasePromise = supabase
+          .from("comics")
+          .select("id, title, cover_url, type, external_id")
+          .ilike("title", `%${query}%`)
+          .is("external_id", null)
+          .limit(5)
+          .then(({ data }) => {
+            if (!data) return [] as SearchResult[];
+            return data.map(
+              (c): SearchResult => ({
+                id: c.id,
+                title: { english: c.title, romaji: c.title },
+                coverImage: { large: c.cover_url || "" },
+                countryOfOrigin:
+                  c.type === "manhwa"
+                    ? "KR"
+                    : c.type === "manhua"
+                      ? "CN"
+                      : "JP",
+                _isManual: true,
+              }),
+            );
+          });
+
+        const [anilistResults, supabaseResults] = await Promise.all([
+          anilistPromise,
+          supabasePromise,
+        ]);
+
+        setResults([...anilistResults, ...supabaseResults]);
       } catch {
         setResults([]);
       } finally {
@@ -83,7 +118,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     return () => clearTimeout(timer);
   }, [query]);
 
-  // Close search on outside click
+  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -95,7 +130,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Close avatar dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -119,21 +153,20 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     navigate(page);
   };
 
+  const handleResultClick = (item: SearchResult) => {
+    setResults([]);
+    setQuery("");
+    navigate("detail", item.id);
+  };
+
   const initial = session?.user?.email?.[0]?.toUpperCase() ?? "?";
   const username =
     session?.user?.user_metadata?.username ?? session?.user?.email ?? "";
 
-  const handleResultClick = (id: number) => {
-    setResults([]);
-    setQuery("");
-    navigate("detail", id);
-  };
+  const badgeLabel = (country: string) =>
+    country === "KR" ? "Manhwa" : country === "CN" ? "Manhua" : "Manga";
 
-  const MENU_ITEMS: {
-    label: string;
-    page: Page;
-    icon: React.ReactNode;
-  }[] = [
+  const MENU_ITEMS: { label: string; page: Page; icon: React.ReactNode }[] = [
     {
       label: "Home",
       page: "home",
@@ -148,7 +181,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
           strokeWidth={1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="icon icon-tabler icons-tabler-outline icon-tabler-home"
         >
           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
           <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
@@ -171,7 +203,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
           strokeWidth={1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="icon icon-tabler icons-tabler-outline icon-tabler-book"
         >
           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
           <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
@@ -196,7 +227,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
           strokeWidth={1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="icon icon-tabler icons-tabler-outline icon-tabler-user-circle"
         >
           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
           <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
@@ -218,7 +248,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
       strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="icon icon-tabler icons-tabler-outline icon-tabler-logout"
     >
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
@@ -266,7 +295,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                      focus:outline-none focus:ring-2 focus:ring-slate-300"
         />
 
-        {/* Search results dropdown */}
         {(results.length > 0 || searching) && (
           <div
             className="absolute top-full left-0 w-full bg-white shadow-xl rounded-xl mt-2
@@ -277,33 +305,40 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                 Mencari...
               </p>
             )}
-            {results.map((item) => {
-              const badge =
-                item.countryOfOrigin === "KR"
-                  ? "Manhwa"
-                  : item.countryOfOrigin === "CN"
-                    ? "Manhua"
-                    : "Manga";
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleResultClick(item.id)}
-                  className="flex items-center gap-3 w-full p-2.5 hover:bg-slate-50 transition text-left"
-                >
+            {results.map((item) => (
+              <button
+                key={`${item._isManual ? "manual" : "al"}-${item.id}`}
+                onClick={() => handleResultClick(item)}
+                className="flex items-center gap-3 w-full p-2.5 hover:bg-slate-50 transition text-left"
+              >
+                {item.coverImage.large ? (
                   <img
                     src={item.coverImage.large}
                     className="w-10 h-14 object-cover rounded-lg flex-shrink-0"
                     alt=""
                   />
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">
-                      {item.title.english || item.title.romaji}
-                    </p>
-                    <span className="text-xs text-slate-400">{badge}</span>
+                ) : (
+                  <div className="w-10 h-14 rounded-lg bg-slate-100 flex-shrink-0 flex items-center justify-center text-slate-300 text-xs">
+                    No img
                   </div>
-                </button>
-              );
-            })}
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-800 truncate">
+                    {item.title.english || item.title.romaji}
+                  </p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-xs text-slate-400">
+                      {badgeLabel(item.countryOfOrigin)}
+                    </span>
+                    {item._isManual && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 bg-purple-100 text-purple-600 rounded-full">
+                        Manual
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </button>
+            ))}
           </div>
         )}
       </div>
@@ -311,7 +346,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
       {/* Right side */}
       <div className="flex items-center gap-2 ml-auto shrink-0">
         {session ? (
-          /* ── Avatar + Dropdown ── */
           <div ref={dropdownRef} className="relative">
             <button
               onClick={() => setShowDropdown((v) => !v)}
@@ -336,7 +370,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                 className="absolute right-0 top-[calc(100%+0.5rem)] w-52 bg-white
                      rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50"
               >
-                {/* User info */}
                 <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
                   <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 shrink-0">
                     {avatarUrl ? (
@@ -360,7 +393,6 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                   </div>
                 </div>
 
-                {/* Menu Items */}
                 <div className="py-1">
                   {MENU_ITEMS.map(({ label, page, icon }) => (
                     <button
@@ -378,13 +410,12 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                 </div>
 
                 <div className="h-px bg-slate-100" />
-
                 <button
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition flex items-center gap-3"
                 >
                   <span className="opacity-70">{logoutIcon}</span>
-                  <span className="font-medium"> Log Out</span>
+                  <span className="font-medium">Log Out</span>
                 </button>
               </div>
             )}
@@ -399,8 +430,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
             </span>
             <button
               onClick={() => navigate("auth")}
-              className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold
-                   hover:bg-slate-700 transition"
+              className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition"
             >
               Sign Up
             </button>
