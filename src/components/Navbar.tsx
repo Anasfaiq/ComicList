@@ -510,6 +510,17 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                         <span>{label}</span>
                       </button>
                     ))}
+
+                    {/* Divider */}
+                    <div className="my-1 border-t border-slate-100" />
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition flex items-center gap-3"
+                    >
+                      <span className="opacity-70">{logoutIcon}</span>
+                      <span className="font-medium">Log Out</span>
+                    </button>
                   </div>
 
                   {/* Mobile logout only */}
