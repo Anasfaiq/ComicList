@@ -12,10 +12,12 @@ import "./App.css";
 const App = () => {
   const [session, setSession] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState<Page>("home");
-  const [selectedComicId, setSelectedComicId] = useState<number | null>(null);
+  const [selectedComicId, setSelectedComicId] = useState<
+    number | string | null
+  >(null);
   const currentPageRef = useRef<Page>("home");
 
-  const navigate = (page: Page, comicId?: number) => {
+  const navigate = (page: Page, comicId?: number | string) => {
     setCurrentPage(page);
     currentPageRef.current = page;
     if (comicId !== undefined) setSelectedComicId(comicId);
