@@ -2,7 +2,7 @@
 export type Page = "home" | "dashboard" | "auth" | "detail" | "profile";
 
 // navigate("detail", 123) — comicId wajib kalau ke detail
-export type NavigateFn = (page: Page, comicId?: number) => void;
+export type NavigateFn = (page: Page, comicId?: number | string) => void;
 
 // AniList Types
 export interface StaffEdge {
