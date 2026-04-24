@@ -376,7 +376,7 @@ const CommentItem = ({
   );
 };
 
-// ── Main ─────────────────────────────────────────────────────────────────────
+// Main 
 
 const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   const [comic, setComic] = useState<any>(null);
