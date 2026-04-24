@@ -140,6 +140,15 @@
 
 /* Filter Tabs */
 
+.tab-bar {
+  -ms-overflow-style: none; /* IE & Edge lama */
+  scrollbar-width: none; /* Firefox */
+}
+
+.tab-bar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
 .tab-btn--active {
   background: #0f172a;
   color: #fff;

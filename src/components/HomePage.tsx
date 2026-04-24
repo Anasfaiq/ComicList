@@ -334,7 +334,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
         {/* Main Content  */}
         <div className="flex-1 min-w-0">
           {/* Filter Tabs */}
-          <div className="tab-bar flex gap-2 mb-2 overflow-auto">
+          <div className="tab-bar flex gap-2 mb-2 overflow-auto scroll-smooth">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
