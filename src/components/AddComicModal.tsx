@@ -252,7 +252,6 @@ const SearchTab = ({ session }: { session: any }) => {
 
 const ManualTab = ({
   session,
-  onClose,
 }: {
   session: any;
   onClose: () => void;

@@ -737,7 +737,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     else alert("Gagal hapus comment: " + error.message);
   };
 
-  const handleUpdateComment = async (commentId: string, content: string) => {
+  const handleUpdateComment = async (commentId: string) => {
     if (!session) return;
     const { error } = await supabase
       .from("comments")
@@ -899,7 +899,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     ? comic.description || "Tidak ada sinopsis."
     : cleanDescription(comic.description, 800);
   const cover = comic.coverImage?.extraLarge || comic.coverImage?.large;
-  const genres: string[] = comic.genres || [];
 
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-6">

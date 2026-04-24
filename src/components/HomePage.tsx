@@ -176,18 +176,6 @@ const ComicCard = ({
   );
 };
 
-// Sidebar Static Data
-const TOP_CONTRIBUTORS = [
-  { rank: 1, name: "MangaExpert42", reviews: 847 },
-  { rank: 2, name: "ManhwaFanatic", reviews: 623 },
-  { rank: 3, name: "ComicCritic", reviews: 512 },
-  { rank: 4, name: "OtakuReviewer", reviews: 489 },
-];
-
-const RECENT_REVIEWS = [
-  { user: "KoreaLover", title: "Solo Leveling", score: "9.5/10" },
-  { user: "ActionFan", title: "One Punch Man", score: "9.0/10" },
-];
 
 // Main
 interface HomePageProps {
