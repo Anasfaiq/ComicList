@@ -177,8 +177,18 @@ const CommentItem = ({
     <div className="space-y-3">
       <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0 shadow-inner">
-            {comment.profiles?.username?.[0]?.toUpperCase() ?? "?"}
+          <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 shadow-inner bg-slate-200">
+            {comment.profiles?.avatar_url ? (
+              <img
+                src={comment.profiles.avatar_url}
+                alt={comment.profiles.username}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white bg-indigo-600 font-bold">
+                {comment.profiles?.username?.[0]?.toUpperCase() ?? "?"}
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -276,8 +286,18 @@ const CommentItem = ({
               className="bg-slate-50 border border-slate-100 rounded-xl p-3 shadow-sm"
             >
               <div className="flex items-start gap-2">
-                <div className="w-7 h-7 rounded-full bg-slate-400 text-white text-[10px] flex items-center justify-center shrink-0">
-                  {r.profiles?.username?.[0]?.toUpperCase() ?? "?"}
+                <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 bg-slate-200">
+                  {r.profiles?.avatar_url ? (
+                    <img
+                      src={r.profiles.avatar_url}
+                      alt={r.profiles.username}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white bg-slate-400 text-[10px]">
+                      {r.profiles?.username?.[0]?.toUpperCase() ?? "?"}
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-0.5">
@@ -880,7 +900,6 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     : cleanDescription(comic.description, 800);
   const cover = comic.coverImage?.extraLarge || comic.coverImage?.large;
   const genres: string[] = comic.genres || [];
-  console.log("genres:", comic.genres);
 
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-6">
