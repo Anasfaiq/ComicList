@@ -98,7 +98,9 @@ const Dashboard = ({ session, navigate }: DashboardProps) => {
           {library.map((item) => (
             <div
               key={item.id}
-              onClick={() => navigate("detail", item.comics.external_id)}
+              onClick={() =>
+                navigate("detail", item.comics.external_id || item.comics.id)
+              }
               className="bg-white border border-slate-100 rounded-xl overflow-hidden
                          hover:shadow-lg transition cursor-pointer group"
             >
@@ -117,7 +119,8 @@ const Dashboard = ({ session, navigate }: DashboardProps) => {
 
                 <div className="flex items-center justify-between mt-2">
                   <span className="text-xs text-slate-400">
-                    {item.comics.type.charAt(0).toUpperCase() + item.comics.type.slice(1)}
+                    {item.comics.type.charAt(0).toUpperCase() +
+                      item.comics.type.slice(1)}
                   </span>
 
                   <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
