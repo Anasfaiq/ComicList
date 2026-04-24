@@ -40,7 +40,12 @@ const App = () => {
   }, []);
 
   if (currentPage === "auth") {
-    return <Auth onBack={() => navigate("home")} />;
+    return (
+      <Auth
+        onBack={() => navigate("home")}
+        onSuccess={() => navigate("home")}
+      />
+    );
   }
 
   return (
