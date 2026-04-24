@@ -121,7 +121,7 @@ const Dashboard = ({ session, navigate }: DashboardProps) => {
                   </span>
 
                   <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
-                    {item.status}
+                    {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                   </span>
                 </div>
               </div>
