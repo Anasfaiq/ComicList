@@ -223,4 +223,4 @@ Endpoint: `https://graphql.anilist.co`
 
 ## 👤 Author
 
-Built by **Anas** — SMK Kesuma Bangsa 2, Software Engineering major.
+Built by **Anas F.**
