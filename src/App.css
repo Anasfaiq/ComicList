@@ -1,8 +1,63 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&display=swap");
 @import "tailwindcss";
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--cl-surface-2) inset !important;
+  -webkit-text-fill-color: var(--cl-text) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 @theme {
+  /* fonts lu yang existing tetep disini */
   --font-ui: "Plus Jakarta Sans", ui-sans-serif, system-ui;
   --font-heading: "Syne", sans-serif;
   --font-accent: "Space Grotesk", sans-serif;
+
+  /* shared tokens */
+  --cl-amber: #f59e0b;
+  --cl-manhwa: #22c55e;
+  --cl-manhua: #f97316;
+  --cl-manga: #3b82f6;
+
+  /* light mode (Webtoon Pastel) */
+  --cl-bg: #f8f7ff;
+  --cl-surface: #ffffff;
+  --cl-surface-2: #ede9fe;
+  --cl-border: #e2e8f0;
+  --cl-primary: #7c3aed;
+  --cl-primary-hover: #6d28d9;
+  --cl-primary-soft: #ede9fe;
+  --cl-text: #1e1b4b;
+  --cl-text-muted: #6b7280;
+  --cl-accent: #f59e0b;
+  --cl-error: #ef4444;
+  --cl-error-light: #fee2e2;
+  --cl-success: #22c55e;
+  --cl-success-light: #f0fdf4;
+  --cl-warning: #f59e0b;
+  --cl-warning-light: #fffbeb;
+}
+
+/* dark mode override (Midnight Teal) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cl-bg: #0a1628;
+    --cl-surface: #0f2035;
+    --cl-surface-2: #1d3a55;
+    --cl-border: #1d3a55;
+    --cl-primary: #0d9488;
+    --cl-primary-hover: #0f766e;
+    --cl-primary-soft: #042f2e;
+    --cl-text: #f0fdfa;
+    --cl-text-muted: #7dd3c8;
+    --cl-accent: #f59e0b;
+    --cl-error: #f87171;
+    --cl-error-light: #7f1d1d;
+    --cl-success: #10b981;
+    --cl-success-light: #064e3b;
+    --cl-warning: #f97316;
+    --cl-warning-light: #431407;
+  }
 }
