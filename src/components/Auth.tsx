@@ -69,8 +69,8 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4">
-      <div className="w-full relative overflow-hidden max-w-md bg-white rounded-2xl shadow-xl p-8 border border-slate-100 min-h-[400px] flex flex-col justify-center transition-all duration-500">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-(--cl-bg) p-4">
+      <div className="w-full relative overflow-hidden max-w-md bg-(--cl-surface) rounded-2xl shadow-xl p-8 border border-(--cl-border) min-h-[400px] flex flex-col justify-center transition-all duration-500">
         {isSignedUp ? (
           <div className="flex flex-col items-center text-center animate-in fade-in zoom-in duration-500">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 animate-bounce">
@@ -88,15 +88,15 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
                 />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">
+            <h2 className="text-2xl font-bold text-(--cl-text) mb-2">
               Berhasil Daftar!
             </h2>
-            <p className="text-slate-500">
+            <p className="text-(--cl-text-muted)">
               Cek email lu untuk verifikasi akun!
             </p>
             <button
               onClick={() => setIsSignedUp(false)}
-              className="mt-8 text-sm text-slate-400 hover:text-slate-600 underline"
+              className="mt-8 text-sm text-(--cl-text-muted) hover:opacity-80 underline"
             >
               Kembali ke Login
             </button>
@@ -148,27 +148,44 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
             {onBack && (
               <button
                 onClick={onBack}
-                className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6 transition"
+                className="flex items-center gap-1 text-sm text-(--cl-text-muted) hover:opacity-80 mb-6 transition"
               >
-                ← Kembali
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width={24}
+                  height={24}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M5 12l14 0" />
+                  <path d="M5 12l6 6" />
+                  <path d="M5 12l6 -6" />
+                </svg>{" "}
+                Kembali
               </button>
             )}
 
-            <h1 className="text-2xl font-bold text-center mb-2 text-slate-800">
+            <h1 className="text-2xl font-bold text-center mb-2 text-(--cl-text)">
               ComicList
             </h1>
-            <p className="text-center text-slate-500 text-sm mb-6">
-              {mode === "login" ? "Masuk ke akun lu" : "Buat akun baru"}
+            <p className="text-center text-(--cl-text-muted) text-sm mb-6">
+              {mode === "login" ? "Masuk ke akun mu" : "Buat akun baru"}
             </p>
 
             {/* Mode toggle */}
-            <div className="flex rounded-lg overflow-hidden border border-slate-200 mb-6">
+            <div className="flex rounded-lg overflow-hidden border border-(--cl-border) mb-6">
               <button
                 onClick={() => {
                   setMode("login");
                   setMessage(null);
                 }}
-                className={`flex-1 py-2 text-sm font-semibold transition ${mode === "login" ? "bg-slate-900 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                className={`flex-1 py-2 text-sm font-semibold transition ${mode === "login" ? "bg-(--cl-primary) text-white" : "bg-(--cl-surface) text-(--cl-text-muted) hover:bg-(--cl-bg)"}`}
               >
                 Log In
               </button>
@@ -177,7 +194,7 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
                   setMode("signup");
                   setMessage(null);
                 }}
-                className={`flex-1 py-2 text-sm font-semibold transition ${mode === "signup" ? "bg-slate-900 text-white" : "bg-white text-slate-500 hover:bg-slate-50"}`}
+                className={`flex-1 py-2 text-sm font-semibold transition ${mode === "signup" ? "bg-(--cl-primary) text-white" : "bg-(--cl-surface) text-(--cl-text-muted) hover:bg-(--cl-bg)"}`}
               >
                 Sign Up
               </button>
@@ -186,7 +203,7 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
             <div className="space-y-4">
               {mode === "signup" && (
                 <input
-                  className="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 text-sm"
+                  className="w-full p-3 border bg-(--cl-surface-2) text-(--cl-text) border-(--cl-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--cl-primary) text-sm"
                   type="text"
                   placeholder="Username"
                   value={username}
@@ -194,14 +211,14 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
                 />
               )}
               <input
-                className="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 text-sm"
+                className="w-full p-3 border bg-(--cl-surface-2) text-(--cl-text) border-(--cl-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--cl-primary) text-sm"
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <input
-                className="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 text-sm"
+                className="w-full p-3 border bg-(--cl-surface-2) text-(--cl-text) border-(--cl-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--cl-primary) text-sm"
                 type="password"
                 placeholder="Password"
                 value={password}
@@ -211,7 +228,7 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
               <button
                 onClick={mode === "login" ? handleLogin : handleSignUp}
                 disabled={loading}
-                className="w-full bg-slate-900 text-white py-3 rounded-lg font-semibold hover:bg-slate-700 transition disabled:opacity-50"
+                className="w-full bg-(--cl-primary) text-white py-3 rounded-lg font-semibold hover:bg-(--cl-primary-hover) transition disabled:opacity-50"
               >
                 {loading
                   ? "Loading..."
