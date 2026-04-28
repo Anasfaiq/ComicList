@@ -1,5 +1,3 @@
-/* Comic Grid Responsive grid tanpa Tailwind — pure CSS media queries*/
-
 .comic-grid {
   display: grid;
   gap: 1rem;
@@ -33,7 +31,6 @@
   position: relative;
   border-radius: 0.75rem;
   overflow: hidden;
-  background-color: #f1f5f9;
   width: 100%;
   aspect-ratio: 2 / 3; /* portrait — ratio cover manga */
 }
@@ -70,7 +67,6 @@
 .comic-card-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1e293b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -80,7 +76,6 @@
 
 .comic-card-author {
   font-size: 0.75rem;
-  color: #64748b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -149,8 +144,3 @@
   display: none; /* Chrome, Safari */
 }
 
-.tab-btn--active {
-  background: #0f172a;
-  color: #fff;
-  border-color: #0f172a;
-}
