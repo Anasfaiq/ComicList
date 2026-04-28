@@ -60,7 +60,7 @@ const GENRE_OPTIONS = [
   "Josei",
 ];
 
-// ── Search Tab ──────────────────────────────────────────────────────────────
+// Search Tab
 
 const SearchTab = ({ session }: { session: any }) => {
   const [query, setQuery] = useState("");
@@ -147,15 +147,15 @@ const SearchTab = ({ session }: { session: any }) => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="flex-1 px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-300"
+          className="flex-1 px-3 py-2.5 border border-(--cl-border) placeholder:text-(--cl-text) text-(--cl-text) rounded-xl text-sm
+                     focus:outline-none focus:ring-2 focus:ring-(--cl-primary)"
           autoFocus
         />
         <button
           onClick={handleSearch}
           disabled={searching || !query.trim()}
-          className="px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-semibold
-                     hover:bg-slate-700 transition disabled:opacity-40"
+          className="px-4 py-2 bg-(--cl-primary) text-(--cl-text) rounded-xl text-sm font-semibold
+                     hover:bg-(--cl-primary-hover) transition disabled:opacity-40"
         >
           {searching ? (
             <svg
@@ -184,10 +184,10 @@ const SearchTab = ({ session }: { session: any }) => {
         </button>
       </div>
 
-      {errorMsg && <p className="text-red-500 text-xs mb-3">{errorMsg}</p>}
+      {errorMsg && <p className="text-(--cl-error) text-xs mb-3">{errorMsg}</p>}
 
       {results.length === 0 && !errorMsg && (
-        <div className="text-center py-8 text-slate-400 text-sm">
+        <div className="text-center py-8 text-(--cl-text-muted) text-sm">
           <p className="text-3xl mb-2">🔍</p>
           <p>Ketik judul komik lalu tekan Enter atau klik Search</p>
         </div>
@@ -201,7 +201,7 @@ const SearchTab = ({ session }: { session: any }) => {
             return (
               <div
                 key={item.id}
-                className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 transition"
+                className="flex items-center gap-3 p-2.5 rounded-xl border border-(--cl-border) bg-(--cl-surface-2) hover:opacity-80 transition"
               >
                 <img
                   src={item.coverImage.large}
@@ -209,11 +209,11 @@ const SearchTab = ({ session }: { session: any }) => {
                   alt=""
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-800 truncate">
+                  <p className="text-sm font-semibold text-(--cl-text) truncate">
                     {item.title.english || item.title.romaji}
                   </p>
                   <span
-                    className="inline-block text-white text-xs font-bold px-1.5 py-0.5 rounded mt-0.5"
+                    className="inline-block text-(--cl-text) text-xs font-bold px-1.5 py-0.5 rounded mt-0.5"
                     style={{
                       backgroundColor: badgeColor(item.countryOfOrigin),
                     }}
@@ -227,8 +227,8 @@ const SearchTab = ({ session }: { session: any }) => {
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition
                     ${
                       isSaved
-                        ? "bg-green-50 text-green-600 border border-green-200"
-                        : "bg-slate-900 text-white hover:bg-slate-700 disabled:opacity-40"
+                        ? "bg-(--cl-success-light) text-(--cl-success) border border-(--cl-border)"
+                        : "bg-(--cl-primary) text-(--cl-text) hover:bg-(--cl-primary-hover) disabled:opacity-40"
                     }`}
                 >
                   {isSaving ? "..." : isSaved ? "Added ✓" : "Add"}
@@ -240,7 +240,7 @@ const SearchTab = ({ session }: { session: any }) => {
       )}
 
       {!session && (
-        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-3">
+        <p className="text-xs text-(--cl-warning) bg-(--cl-warning-light) border border-(--cl-border) rounded-lg px-3 py-2 mt-3">
           ⚠️ Kamu harus login untuk menambah komik ke database.
         </p>
       )}
@@ -248,14 +248,9 @@ const SearchTab = ({ session }: { session: any }) => {
   );
 };
 
-// ── Manual Upload Tab ────────────────────────────────────────────────────────
+// Manual Upload Tab
 
-const ManualTab = ({
-  session,
-}: {
-  session: any;
-  onClose: () => void;
-}) => {
+const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
   const [title, setTitle] = useState("");
   const [synopsis, setSynopsis] = useState("");
   const [author, setAuthor] = useState("");
@@ -378,7 +373,7 @@ const ManualTab = ({
 
   if (!session) {
     return (
-      <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+      <p className="text-xs text-(--cl-warning) bg-(--cl-warning-light) border border-(--cl-border) rounded-lg px-3 py-2">
         ⚠️ Kamu harus login untuk menambah komik ke database.
       </p>
     );
@@ -388,13 +383,13 @@ const ManualTab = ({
     <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
       {/* Cover Upload */}
       <div>
-        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+        <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-2">
           Cover (opsional, maks 5 MB)
         </label>
 
         {coverPreview ? (
           <div className="flex items-start gap-3">
-            <div className="relative w-24 rounded-xl overflow-hidden border border-slate-200 shrink-0 aspect-[2/3]">
+            <div className="relative w-24 rounded-xl overflow-hidden border border-(--cl-border) shrink-0 aspect-[2/3]">
               <img
                 src={coverPreview}
                 alt="Preview"
@@ -402,15 +397,15 @@ const ManualTab = ({
               />
             </div>
             <div className="flex flex-col gap-2 pt-1">
-              <p className="text-xs text-slate-500">{coverFile?.name}</p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-(--cl-text-muted)">{coverFile?.name}</p>
+              <p className="text-xs text-(--cl-text-muted)">
                 {coverFile
                   ? (coverFile.size / 1024 / 1024).toFixed(2) + " MB"
                   : ""}
               </p>
               <button
                 onClick={handleRemoveCover}
-                className="text-xs text-red-500 hover:underline text-left"
+                className="text-xs text-(--cl-error) hover:underline text-left"
               >
                 Hapus foto
               </button>
@@ -419,7 +414,7 @@ const ManualTab = ({
         ) : (
           <label
             className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed
-                       border-slate-200 rounded-xl cursor-pointer hover:border-slate-400 hover:bg-slate-50 transition"
+                       border-(--cl-border) rounded-xl cursor-pointer hover:border-(--cl-primary) hover:bg-(--cl-surface-2) transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -431,7 +426,7 @@ const ManualTab = ({
               strokeWidth={1.5}
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="text-slate-400 mb-2"
+              className="text-(--cl-text-muted) mb-2"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M15 8h.01" />
@@ -439,10 +434,10 @@ const ManualTab = ({
               <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l4 4" />
               <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" />
             </svg>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-(--cl-text-muted)">
               Klik untuk upload gambar cover
             </span>
-            <span className="text-[10px] text-slate-300 mt-0.5">
+            <span className="text-[10px] text-(--cl-text-muted) opacity-75 mt-0.5">
               JPG, PNG, WEBP · maks 5 MB
             </span>
             <input
@@ -455,37 +450,37 @@ const ManualTab = ({
           </label>
         )}
         {coverError && (
-          <p className="text-red-500 text-xs mt-1">{coverError}</p>
+          <p className="text-(--cl-error) text-xs mt-1">{coverError}</p>
         )}
       </div>
 
       {/* Title */}
       <div>
-        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-          Judul <span className="text-red-400">*</span>
+        <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
+          Judul <span className="text-(--cl-error)">*</span>
         </label>
         <input
           type="text"
           placeholder="e.g. Solo Leveling"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-300"
+          className="w-full px-3 py-2.5 border border-(--cl-border) rounded-xl text-sm
+                     focus:outline-none focus:ring-2 focus:ring-(--cl-primary)"
         />
       </div>
 
       {/* Author */}
       <div>
-        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-          Author <span className="text-red-400">*</span>
+        <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
+          Author <span className="text-(--cl-error)">*</span>
         </label>
         <input
           type="text"
           placeholder="e.g. Chugong"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
-          className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-300"
+          className="w-full px-3 py-2.5 border border-(--cl-border) rounded-xl text-sm
+                     focus:outline-none focus:ring-2 focus:ring-(--cl-primary)"
         />
       </div>
 
@@ -493,7 +488,7 @@ const ManualTab = ({
       <div className="flex gap-3">
         {/* Type */}
         <div className="flex-1">
-          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
             Tipe
           </label>
           <div className="flex gap-1.5">
@@ -505,11 +500,11 @@ const ManualTab = ({
                   ${
                     type === t
                       ? t === "manga"
-                        ? "bg-blue-600 text-white border-blue-600"
+                        ? "bg-(--cl-manga) text-white border-(--cl-manga)"
                         : t === "manhwa"
-                          ? "bg-green-600 text-white border-green-600"
-                          : "bg-orange-500 text-white border-orange-500"
-                      : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                          ? "bg-(--cl-manhwa) text-white border-(--cl-manhwa)"
+                          : "bg-(--cl-manhua) text-white border-(--cl-manhua)"
+                      : "bg-(--cl-surface) text-(--cl-text-muted) border-(--cl-border) hover:bg-(--cl-surface-2)"
                   }`}
               >
                 {t}
@@ -520,7 +515,7 @@ const ManualTab = ({
 
         {/* Status */}
         <div className="flex-1">
-          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
             Status
           </label>
           <div className="flex gap-1.5">
@@ -537,9 +532,9 @@ const ManualTab = ({
                   ${
                     status === value
                       ? value === "RELEASING"
-                        ? "bg-emerald-600 text-white border-emerald-600"
-                        : "bg-slate-700 text-white border-slate-700"
-                      : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                        ? "bg-(--cl-success) text-white border-(--cl-success)"
+                        : "bg-(--cl-text-muted) text-white border-(--cl-text-muted)"
+                      : "bg-(--cl-surface) text-(--cl-text-muted) border-(--cl-border) hover:bg-(--cl-surface-2)"
                   }`}
               >
                 {label}
@@ -551,23 +546,23 @@ const ManualTab = ({
 
       {/* Synopsis */}
       <div>
-        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-          Synopsis <span className="text-slate-300">(opsional)</span>
+        <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
+          Synopsis <span className="text-(--cl-text-muted) opacity-75">(opsional)</span>
         </label>
         <textarea
           rows={3}
           placeholder="Tulis sinopsis singkat tentang komik ini..."
           value={synopsis}
           onChange={(e) => setSynopsis(e.target.value)}
-          className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm resize-none
-                     focus:outline-none focus:ring-2 focus:ring-slate-300"
+          className="w-full px-3 py-2.5 border border-(--cl-border) rounded-xl text-sm resize-none
+                     focus:outline-none focus:ring-2 focus:ring-(--cl-primary)"
         />
       </div>
 
       {/* Genres */}
       <div>
-        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-          Genre <span className="text-slate-300">(opsional)</span>
+        <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
+          Genre <span className="text-(--cl-text-muted) opacity-75">(opsional)</span>
         </label>
 
         {/* Preset Chips */}
@@ -579,8 +574,8 @@ const ManualTab = ({
               className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition
                 ${
                   genres.includes(g)
-                    ? "bg-slate-900 text-white border-slate-900"
-                    : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                    ? "bg-(--cl-text) text-(--cl-surface) border-(--cl-text)"
+                    : "bg-(--cl-surface) text-(--cl-text-muted) border-(--cl-border) hover:bg-(--cl-surface-2)"
                 }`}
             >
               {g}
@@ -601,13 +596,13 @@ const ManualTab = ({
                 addCustomGenre();
               }
             }}
-            className="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-xs
-                       focus:outline-none focus:ring-2 focus:ring-slate-300"
+            className="flex-1 px-3 py-2 border border-(--cl-border) rounded-xl text-xs
+                       focus:outline-none focus:ring-2 focus:ring-(--cl-primary)"
           />
           <button
             onClick={addCustomGenre}
-            className="px-3 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold
-                       hover:bg-slate-200 transition"
+            className="px-3 py-2 bg-(--cl-surface-2) text-(--cl-text-muted) rounded-xl text-xs font-semibold
+                       hover:bg-(--cl-primary-soft) transition"
           >
             + Add
           </button>
@@ -620,12 +615,12 @@ const ManualTab = ({
               <span
                 key={g}
                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs
-                           font-semibold bg-slate-900 text-white"
+                           font-semibold bg-(--cl-text) text-(--cl-surface)"
               >
                 {g}
                 <button
                   onClick={() => toggleGenre(g)}
-                  className="hover:text-red-300 transition text-[10px] leading-none"
+                  className="hover:opacity-70 transition text-[10px] leading-none"
                 >
                   ×
                 </button>
@@ -637,12 +632,12 @@ const ManualTab = ({
 
       {/* Messages */}
       {errorMsg && (
-        <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <p className="text-(--cl-error) text-xs bg-(--cl-error-light) border border-(--cl-border) rounded-lg px-3 py-2">
           ❌ {errorMsg}
         </p>
       )}
       {successMsg && (
-        <p className="text-green-600 text-xs bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+        <p className="text-(--cl-success) text-xs bg-(--cl-success-light) border border-(--cl-border) rounded-lg px-3 py-2">
           ✅ {successMsg}
         </p>
       )}
@@ -651,8 +646,8 @@ const ManualTab = ({
       <button
         onClick={handleSubmit}
         disabled={submitting}
-        className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold
-                   hover:bg-slate-700 transition disabled:opacity-40"
+        className="w-full py-2.5 bg-(--cl-text) text-(--cl-surface) rounded-xl text-sm font-bold
+                   hover:bg-(--cl-text-muted) transition disabled:opacity-40"
       >
         {submitting ? "Menyimpan..." : "Tambah ke Database"}
       </button>
@@ -660,7 +655,7 @@ const ManualTab = ({
   );
 };
 
-// Main Modal 
+// Main Modal
 
 const AddComicModal = ({ session, onClose }: AddComicModalProps) => {
   const [tab, setTab] = useState<TabMode>("search");
@@ -670,30 +665,45 @@ const AddComicModal = ({ session, onClose }: AddComicModalProps) => {
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+      <div className="bg-(--cl-surface) rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <h2 className="font-bold text-slate-800 text-base">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-(--cl-border)">
+          <h2 className="font-bold text-(--cl-text) text-base">
             Add Comic to Database
           </h2>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-full text-slate-400
-                       hover:bg-slate-100 hover:text-slate-600 transition text-lg font-light"
+            className="w-7 h-7 flex items-center justify-center rounded-full text-(--cl-text-muted)
+                       hover:bg-(--cl-primary) hover:text-(--cl-text-primary-hover) transition text-lg font-light"
           >
-            ×
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={24}
+              height={24}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="icon icon-tabler icons-tabler-outline icon-tabler-x"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M18 6l-12 12" />
+              <path d="M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-slate-100">
+        <div className="flex border-b border-(--cl-border)">
           <button
             onClick={() => setTab("search")}
             className={`flex-1 py-3 text-sm font-semibold transition flex items-center justify-center gap-2
               ${
                 tab === "search"
-                  ? "text-slate-900 border-b-2 border-slate-900"
-                  : "text-slate-400 hover:text-slate-600"
+                  ? "text-(--cl-text) border-b-2 border-(--cl-border)"
+                  : "text-(--cl-text-muted) hover:text-(--cl-primary-hover)"
               }`}
           >
             <svg
@@ -718,8 +728,8 @@ const AddComicModal = ({ session, onClose }: AddComicModalProps) => {
             className={`flex-1 py-3 text-sm font-semibold transition flex items-center justify-center gap-2
               ${
                 tab === "manual"
-                  ? "text-slate-900 border-b-2 border-slate-900"
-                  : "text-slate-400 hover:text-slate-600"
+                  ? "text-(--cl-text) border-b-2 border-(--cl-border)"
+                  : "text-(--cl-text-muted) hover:text-(--cl-primary-hover)"
               }`}
           >
             <svg
