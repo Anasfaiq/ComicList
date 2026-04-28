@@ -154,7 +154,7 @@ const ComicCard = ({
 
   return (
     <div className="comic-card" onClick={onClick}>
-      <div className="comic-card-cover">
+      <div className="comic-card-cover bg-(--cl-surface-2)">
         <img src={comic.coverImage.large} alt={title} loading="lazy" />
         <span
           className="comic-card-badge"
@@ -164,10 +164,10 @@ const ComicCard = ({
         </span>
       </div>
       <div className="comic-card-info">
-        <p className="comic-card-title" title={title}>
+        <p className="comic-card-title text-(--cl-text)" title={title}>
           {title}
         </p>
-        <p className="comic-card-author" title={author}>
+        <p className="comic-card-author text-(--cl-text-muted)" title={author}>
           {author}
         </p>
         <p className="comic-card-score">⭐ {score}</p>
@@ -285,18 +285,18 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
     const isOpen = openSection === id;
 
     return (
-      <div className="bg-white border border-slate-100 rounded-2xl">
+      <div className="bg-(--cl-bg) border border-(--cl-border) 100 rounded-2xl">
         <button
           onClick={() => toggleSection(id)}
           className="w-full flex items-center justify-between p-4"
         >
-          <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
+          <div className="flex items-center gap-2 text-sm font-bold text-(--cl-text)">
             {icon}
             <span>{title}</span>
           </div>
 
           {/* Chevron */}
-          <span className="lg:hidden text-slate-400">
+          <span className="lg:hidden text-(--cl-text-muted)">
             <Chevron isOpen={isOpen} />
           </span>
         </button>
@@ -339,7 +339,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`tab-btn rounded-xl px-4 py-2 flex items-center gap-2 whitespace-nowrap border border-slate-200 font-accent font-medium text-sm transition-all cursor-pointer hover:bg-slate-200 ${activeTab === tab.id ? " tab-btn--active" : ""}`}
+                className={`tab-btn rounded-xl px-4 py-2 flex items-center gap-2 whitespace-nowrap border border-(--cl-border) text-(--cl-text) font-accent font-medium text-sm transition-all cursor-pointer hover:bg-(--cl-surface-2) ${activeTab === tab.id ? "bg-(--cl-surface-2)" : ""}`}
               >
                 <span>{TAB_ICONS[tab.id]}</span>
                 {tab.label}
@@ -349,7 +349,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
 
           {/* Error */}
           {error && (
-            <div className="text-center py-16 text-slate-400">
+            <div className="text-center py-16 text-(--cl-text-muted)">
               <p>{error}</p>
             </div>
           )}
@@ -374,16 +374,16 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
 
         {/* Sidebar */}
         <aside className="w-full lg:w-64 shrink-0 flex flex-col gap-4">
-          <div className="bg-slate-800 text-white rounded-2xl p-5">
+          <div className="bg-(--cl-surface) text-(--cl-text) rounded-2xl p-5">
             <div className="text-2xl mb-3">+</div>
             <h3 className="font-bold text-base mb-1">Can't find a title?</h3>
-            <p className="text-slate-300 text-sm mb-4 leading-relaxed">
+            <p className="text-(--cl-text-muted) text-sm mb-4 leading-relaxed">
               Help grow our database by adding new manga, manhwa, or manhua.
             </p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="w-full bg-white text-slate-900 font-semibold py-2 rounded-lg text-sm
-                         hover:bg-slate-100 transition"
+              className="w-full bg-(--cl-primary) text-(--cl-text) font-semibold py-2 rounded-lg text-sm
+                         hover:bg-(--cl-primary-hover) transition"
             >
               Add to Database
             </button>
@@ -398,14 +398,14 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
             <div className="space-y-3">
               {topContributors.map((c) => (
                 <div key={c.rank} className="flex items-start gap-3">
-                  <span className="text-xs text-slate-400 pt-0.5 w-5">
+                  <span className="text-xs text-(--cl-text-muted) pt-0.5 w-5">
                     #{c.rank}
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-slate-700">
+                    <p className="text-sm font-semibold text-(--cl-text)">
                       {c.name}
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-(--cl-text-muted)">
                       {c.reviews} reviews
                     </p>
                   </div>
@@ -423,13 +423,13 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
             <div className="space-y-4">
               {recentReviews.map((r, i) => (
                 <div key={i}>
-                  <p className="text-xs text-slate-400 mb-0.5">
+                  <p className="text-xs text-(--cl-text-muted) mb-0.5">
                     {r.user} reviewed
                   </p>
-                  <p className="text-sm font-semibold text-slate-700">
+                  <p className="text-sm font-semibold text-(--cl-text)">
                     {r.title}
                   </p>
-                  <p className="text-xs text-slate-500 line-clamp-2">
+                  <p className="text-xs text-(--cl-text-muted) line-clamp-2">
                     ⭐ {r.score}
                   </p>
                 </div>
