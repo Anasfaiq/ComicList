@@ -52,19 +52,19 @@ const Profile = ({ session, navigate }: ProfileProps) => {
       const fileName = `${session.user.id}-${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      // 1. Upload ke Storage
+      // Upload ke Storage
       const { error: uploadError } = await supabase.storage
         .from("avatars")
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // 2. Ambil Public URL
+      // Ambil Public URL
       const {
         data: { publicUrl },
       } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
-      // 3. Update table profile
+      // Update table profile
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -87,20 +87,17 @@ const Profile = ({ session, navigate }: ProfileProps) => {
   }
 
   const handleDeleteAvatar = async () => {
-    if (!avatarUrl) return; // Kalau emang nggak ada foto, ya nggak usah hapus
+    if (!avatarUrl) return;
 
     try {
       setLoading(true);
 
-      // 1. Ekstrak nama file dari URL (misal: "avatar_123.png")
-      // Kita butuh ini buat hapus file di Storage
       const fileName = avatarUrl.split("/").pop();
 
       if (fileName) {
         await supabase.storage.from("avatars").remove([fileName]);
       }
 
-      // 2. Update tabel profiles set avatar_url jadi null
       const { error } = await supabase
         .from("profiles")
         .update({ avatar_url: null })
@@ -108,7 +105,6 @@ const Profile = ({ session, navigate }: ProfileProps) => {
 
       if (error) throw error;
 
-      // 3. Update state lokal supaya UI langsung berubah
       setAvatarUrl(null);
       alert("Foto profil berhasil dihapus!");
     } catch (err: any) {
@@ -122,12 +118,12 @@ const Profile = ({ session, navigate }: ProfileProps) => {
     return <div className="p-10 text-center">Loading profile...</div>;
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-white border border-slate-100 rounded-2xl shadow-sm">
-      <h2 className="text-xl font-bold text-slate-800 mb-6">Edit Profile</h2>
+    <div className="max-w-xl mx-auto mt-10 p-6 bg-(--cl-surface) border border-(--cl-border) rounded-2xl shadow-sm">
+      <h2 className="text-xl font-bold text-(--cl-text) mb-6">Edit Profile</h2>
 
       <div className="flex flex-col items-center gap-6">
         <div className="relative group">
-          <div className="w-32 h-32 rounded-full overflow-hidden bg-slate-100 border-4 border-white shadow-md">
+          <div className="w-32 h-32 rounded-full overflow-hidden bg-(--cl-surface-2) border-4 border-(--cl-border) shadow-md">
             {avatarUrl ? (
               <img
                 src={avatarUrl}
@@ -135,13 +131,13 @@ const Profile = ({ session, navigate }: ProfileProps) => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold text-2xl uppercase">
+              <div className="w-full h-full flex items-center justify-center text-(--cl-text-muted) font-bold text-2xl uppercase">
                 {username?.charAt(0) || "U"}
               </div>
             )}
           </div>
 
-          <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
+          <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-(--cl-text-muted) opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
             <span className="text-xs font-semibold">
               {uploading ? "..." : "Ubah"}
             </span>
@@ -159,7 +155,7 @@ const Profile = ({ session, navigate }: ProfileProps) => {
         {avatarUrl && (
           <button
             onClick={handleDeleteAvatar}
-            className="text-xs bg-white border border-red-200 text-red-500 px-3 py-2 rounded-lg font-semibold hover:bg-red-50 transition"
+            className="text-xs bg-red-600 border border-red-700 text-white px-3 py-2 rounded-lg font-semibold hover:bg-red-700 transition"
           >
             Hapus
           </button>
@@ -167,32 +163,32 @@ const Profile = ({ session, navigate }: ProfileProps) => {
 
         <div className="w-full space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-slate-600 mb-1.5">
+            <label className="block text-sm font-semibold text-(--cl-text) mb-1.5">
               Username
             </label>
             <input
               type="text"
               value={username}
               disabled
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-sm"
+              className="w-full p-3 bg-(--cl-surface-2) border border-(--cl-border) rounded-xl text-(--cl-text) text-sm"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-600 mb-1.5">
+            <label className="block text-sm font-semibold text-(--cl-text) mb-1.5">
               Email
             </label>
             <input
               type="text"
               value={session.user.email}
               disabled
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-sm"
+              className="w-full p-3 bg-(--cl-surface-2) border border-(--cl-border) rounded-xl text-(--cl-text) text-sm"
             />
           </div>
         </div>
 
         <button
           onClick={() => navigate("dashboard")}
-          className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition"
+          className="w-full py-3 bg-(--cl-primary) text-(--cl-text) rounded-xl font-bold hover:bg-(--cl-primary-hover) transition"
         >
           Kembali ke Dashboard
         </button>
