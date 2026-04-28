@@ -270,7 +270,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
 
   return (
     <>
-      <nav className="flex items-center gap-4 px-4 md:px-10 lg:px-20 xl:px-40 py-3 border-b border-slate-100 bg-white sticky top-0 z-50">
+      <nav className="flex items-center gap-4 px-4 md:px-10 lg:px-20 xl:px-40 py-3 border-b border-(--cl-border) bg-(--cl-surface) text-(--cl-text) sticky top-0 z-50">
         {/* Logo */}
         <p
           className="font-heading text-xl font-bold shrink-0 cursor-pointer flex items-center gap-2"
@@ -285,7 +285,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
           ref={searchRef}
           className="relative flex-1 max-w-xl"
         >
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-(--cl-text-muted) pointer-events-none">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width={16}
@@ -307,14 +307,14 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
             placeholder="Search Manga, Manhwa, Manhua..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full lg:w-full md:w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-300"
+            className="w-full lg:w-full md:w-full pl-9 pr-4 py-2.5 border border-(--cl-border) rounded-xl text-sm
+                     focus:outline-none focus:ring-2 focus:ring-(--cl-border)"
           />
 
           {(results.length > 0 || searching) && (
             <div
-              className="absolute top-full left-0 w-full bg-white shadow-xl rounded-xl mt-2
-                          max-h-80 overflow-y-auto z-50 border border-slate-100"
+              className="absolute top-full left-0 w-full bg-(--cl-surface) shadow-xl rounded-xl mt-2
+                          max-h-80 overflow-y-auto z-50 border border-(--cl-border)"
             >
               {searching && (
                 <>
@@ -327,7 +327,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                 <button
                   key={`${item._isManual ? "manual" : "al"}-${item.id}`}
                   onClick={() => handleResultClick(item)}
-                  className="flex items-center gap-3 w-full p-2.5 hover:bg-slate-50 transition text-left"
+                  className="flex items-center gap-3 w-full p-2.5 hover:bg-(--cl-bg) transition text-left"
                 >
                   {item.coverImage.large ? (
                     <img
@@ -336,16 +336,16 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                       alt=""
                     />
                   ) : (
-                    <div className="w-10 h-14 rounded-lg bg-slate-100 flex-shrink-0 flex items-center justify-center text-slate-300 text-xs">
+                    <div className="w-10 h-14 rounded-lg bg-(--cl-surface) flex-shrink-0 flex items-center justify-center text-(--cl-text-muted) text-xs">
                       No img
                     </div>
                   )}
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">
+                    <p className="text-sm font-medium text-(--cl-text) truncate">
                       {item.title.english || item.title.romaji}
                     </p>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-(--cl-text-muted)">
                         {badgeLabel(item.countryOfOrigin)}
                       </span>
                       {item._isManual && (
@@ -368,7 +368,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
               <button
                 onClick={() => setShowDropdown((v) => !v)}
                 title={username}
-                className={`w-9 h-9 rounded-full overflow-hidden bg-slate-900 text-white font-bold text-sm
+                className={`w-9 h-9 rounded-full overflow-hidden bg-(--cl-surface) text-(--cl-text) font-bold text-sm
                    flex items-center justify-center border-2 transition
                    ${showDropdown ? "border-indigo-400" : "border-transparent"}`}
               >
@@ -385,40 +385,40 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
 
               {showDropdown && (
                 <div
-                  className="absolute right-0 top-[calc(100%+0.5rem)] w-52 bg-white
-                     rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50"
+                  className="absolute right-0 top-[calc(100%+0.5rem)] w-52 bg-(--cl-surface)
+                     rounded-xl shadow-xl border border-(--cl-border) overflow-hidden z-50"
                 >
-                  <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 shrink-0">
+                  <div className="flex items-center gap-3 px-4 py-3 border-b border-(--cl-border) bg-(--cl-surface-2)">
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-(--cl-surface) shrink-0">
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-slate-500">
+                        <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-(--cl-text-muted)">
                           {initial}
                         </div>
                       )}
                     </div>
                     <div className="overflow-hidden">
-                      <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                      <p className="text-[10px] text-(--cl-text-muted) uppercase font-bold tracking-wider">
                         Logged in
                       </p>
-                      <p className="text-sm font-semibold text-slate-800 truncate">
+                      <p className="text-sm font-semibold text-(--cl-text) truncate">
                         {username}
                       </p>
                     </div>
                   </div>
 
                   {/* Desktop menu */}
-                  <div className="py-1 hidden lg:block">
+                  <div className="hidden lg:block">
                     {MENU_ITEMS.map(({ label, page, icon }) => (
                       <button
                         key={page}
                         onClick={() => go(page)}
-                        className={`w-full text-left px-4 py-2 text-sm transition hover:bg-slate-100 flex items-center gap-3
-                        ${currentPage === page ? "text-indigo-600 bg-indigo-50 font-semibold" : "text-slate-600"}`}
+                        className={`w-full text-left px-4 py-2 text-sm transition hover:bg-(--cl-primary-hover) flex items-center gap-3
+                        ${currentPage === page ? "text-(--cl-text) bg-(--cl-primary) font-semibold" : "text-(--cl-text-muted)"}`}
                       >
                         <span className="flex items-center opacity-70">
                           {icon}
@@ -428,7 +428,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                     ))}
 
                     {/* Divider */}
-                    <div className="my-1 border-t border-slate-100" />
+                    <div className="my-1 border-t border-(--cl-border)" />
 
                     <button
                       onClick={handleLogout}
@@ -456,13 +456,13 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
             <>
               <span
                 onClick={() => navigate("auth")}
-                className="text-sm text-slate-600 font-medium cursor-pointer hover:text-slate-900 transition hidden sm:block"
+                className="text-sm text-(--cl-text-muted) font-medium cursor-pointer hover:opacity-80 transition hidden sm:block"
               >
                 Log In
               </span>
               <button
                 onClick={() => navigate("auth")}
-                className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition"
+                className="px-4 py-2 bg-(--cl-primary) text-white rounded-lg text-sm font-semibold hover:bg-(--cl-primary-hover) transition"
               >
                 Sign Up
               </button>
@@ -472,7 +472,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
       </nav>
 
       {session && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 lg:hidden shadow-[0_-2px_10px_rgba(0,0,0,0.09)] ">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-(--cl-surface) border-t border-(--cl-border) lg:hidden shadow-[0_-2px_10px_rgba(0,0,0,0.09)] ">
           <div className="flex justify-around items-center h-14">
             {MENU_ITEMS.map(({ label, page, icon }) => {
               const active = currentPage === page;
@@ -482,7 +482,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                   key={page}
                   onClick={() => navigate(page)}
                   className={`flex flex-col items-center justify-center text-xs ${
-                    active ? "text-indigo-600" : "text-slate-400"
+                    active ? "text-(--cl-text)" : "text-(--cl-text-muted)"
                   }`}
                 >
                   <div className={`${active ? "scale-110" : ""} transition`}>
