@@ -132,16 +132,16 @@ const RatingBar = ({
   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
     <div className="flex items-center gap-2 text-sm">
-      <span className="text-slate-500 w-10 lg:w-14 text-right shrink-0 text-xs lg:text-sm">
+      <span className="text-(--cl-text-muted) w-10 lg:w-14 text-right shrink-0 text-xs lg:text-sm">
         {label}★
       </span>
-      <div className="flex-1 bg-slate-100 rounded-full h-1.5 lg:h-2 overflow-hidden">
+      <div className="flex-1 bg-(--cl-surface-2) rounded-full h-1.5 lg:h-2 overflow-hidden">
         <div
-          className="h-full bg-amber-400 rounded-full transition-all duration-500"
+          className="h-full bg-(--cl-amber) rounded-full transition-all duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-slate-400 w-6 lg:w-8 text-right shrink-0 text-xs">
+      <span className="text-(--cl-text-muted) w-6 lg:w-8 text-right shrink-0 text-xs">
         {pct}%
       </span>
     </div>
@@ -179,9 +179,9 @@ const CommentItem = ({
 
   return (
     <div className="space-y-3">
-      <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
+      <div className="bg-(--cl-surface) border border-(--cl-border) rounded-2xl p-4 shadow-sm">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-full overflow-hidden shrink-0 shadow-inner bg-slate-200">
+          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-full overflow-hidden shrink-0 shadow-inner bg-(--cl-surface-2)">
             {comment.profiles?.avatar_url ? (
               <img
                 src={comment.profiles.avatar_url}
@@ -189,17 +189,17 @@ const CommentItem = ({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-white bg-indigo-600 font-bold text-sm">
+              <div className="w-full h-full flex items-center justify-center text-(--cl-text) bg-(--cl-primary) font-bold text-sm">
                 {comment.profiles?.username?.[0]?.toUpperCase() ?? "?"}
               </div>
             )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-bold text-slate-800 text-sm">
+              <span className="font-bold text-(--cl-text) text-sm">
                 {comment.profiles?.username ?? "Anonymous"}
               </span>
-              <span className="text-slate-400 text-[11px]">
+              <span className="text-(--cl-text-muted) text-[11px]">
                 {timeAgo(comment.created_at)}
               </span>
             </div>
@@ -213,7 +213,7 @@ const CommentItem = ({
                 <div className="flex gap-2">
                   <button
                     onClick={() => onUpdate(comment.id, editText)}
-                    className="text-xs text-green-600"
+                    className="text-xs text-(--cl-primary) cursor-pointer"
                   >
                     Save
                   </button>
@@ -222,28 +222,28 @@ const CommentItem = ({
                       setEditingId(null);
                       setEditText("");
                     }}
-                    className="text-xs text-slate-400"
+                    className="text-xs text-slate-400 cursor-pointer"
                   >
                     Cancel
                   </button>
                 </div>
               </div>
             ) : (
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <p className="text-(--cl-text) text-sm leading-relaxed">
                 {comment.content}
               </p>
             )}
             <div className="flex items-center gap-3 lg:gap-4 mt-3 flex-wrap">
               <button
                 onClick={() => onLike(comment.id)}
-                className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 transition"
+                className="flex items-center gap-1.5 text-xs font-medium text-(--cl-primary) hover:text-(--cl-primary-hover) transition cursor-pointer"
               >
                 {LikeIcon && <LikeIcon size={15} />}
                 <span>{comment.like_count}</span>
               </button>
               <button
                 onClick={() => onReply(comment.id)}
-                className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 transition"
+                className="flex items-center gap-1.5 text-xs font-medium text-(--cl-primary) hover:text-(--cl-primary-hover) transition cursor-pointer"
               >
                 {ReplyIcon && <ReplyIcon size={15} />}
                 <span>Reply</span>
@@ -251,7 +251,7 @@ const CommentItem = ({
               {replies.length > 0 && (
                 <button
                   onClick={() => setShowReplies(!showReplies)}
-                  className="text-[11px] font-bold text-indigo-500 hover:text-indigo-700 ml-auto"
+                  className="text-[11px] font-bold text-(--cl-primary) hover:text-(--cl-primary-hover) ml-auto cursor-pointer"
                 >
                   {showReplies
                     ? "Hide Replies"
@@ -265,13 +265,13 @@ const CommentItem = ({
                       setEditingId(comment.id);
                       setEditText(comment.content);
                     }}
-                    className="text-xs text-blue-400 hover:text-blue-600"
+                    className="text-xs text-(--cl-primary) hover:text-(--cl-primary-hover) cursor-pointer"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => onDelete(comment.id)}
-                    className="text-xs text-red-400 hover:text-red-600"
+                    className="text-xs text-red-400 hover:text-red-600 cursor-pointer"
                   >
                     Delete
                   </button>
@@ -283,14 +283,14 @@ const CommentItem = ({
       </div>
 
       {showReplies && replies.length > 0 && (
-        <div className="ml-8 lg:ml-10 pl-3 lg:pl-4 border-l-2 border-slate-200 space-y-3">
+        <div className="ml-8 lg:ml-10 pl-3 lg:pl-4 border-l-2 border-(--cl-border) space-y-3">
           {replies.map((r) => (
             <div
               key={r.id}
-              className="bg-slate-50 border border-slate-100 rounded-xl p-3 shadow-sm"
+              className="bg-(--cl-surface) border border-(--cl-border) rounded-xl p-3 shadow-sm"
             >
               <div className="flex items-start gap-2">
-                <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 bg-slate-200">
+                <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 bg-(--cl-surface-2)">
                   {r.profiles?.avatar_url ? (
                     <img
                       src={r.profiles.avatar_url}
@@ -298,17 +298,17 @@ const CommentItem = ({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white bg-slate-400 text-[10px]">
+                    <div className="w-full h-full flex items-center justify-center text-(--cl-text) bg-(--cl-text-muted) text-[10px]">
                       {r.profiles?.username?.[0]?.toUpperCase() ?? "?"}
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-bold text-slate-700 text-[11px]">
+                    <span className="font-bold text-(--cl-text) text-[11px]">
                       {r.profiles?.username}
                     </span>
-                    <span className="text-slate-400 text-[10px]">
+                    <span className="text-(--cl-text-muted) text-[10px]">
                       {timeAgo(r.created_at)}
                     </span>
                   </div>
@@ -322,7 +322,7 @@ const CommentItem = ({
                       <div className="flex gap-2">
                         <button
                           onClick={() => onUpdate(r.id, editText)}
-                          className="text-[10px] text-green-600"
+                          className="text-[10px] text-(--cl-primary) cursor-pointer"
                         >
                           Save
                         </button>
@@ -331,20 +331,20 @@ const CommentItem = ({
                             setEditingId(null);
                             setEditText("");
                           }}
-                          className="text-[10px] text-slate-400"
+                          className="text-[10px] text-slate-400 cursor-pointer"
                         >
                           Cancel
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-slate-600 text-xs leading-relaxed">
+                    <p className="text-(--cl-text) text-xs leading-relaxed">
                       {r.content}
                     </p>
                   )}
                   <button
                     onClick={() => onLike(r.id)}
-                    className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-400 hover:text-indigo-600"
+                    className="flex items-center gap-1.5 mt-2 text-[10px] text-(--cl-primary) hover:text-(--cl-primary-hover) cursor-pointer"
                   >
                     {LikeIcon && (
                       <LikeIcon size={13} className="inline-block" />
@@ -358,13 +358,13 @@ const CommentItem = ({
                           setEditingId(r.id);
                           setEditText(r.content);
                         }}
-                        className="text-[10px] text-blue-400 hover:text-blue-600"
+                        className="text-[10px] text-(--cl-primary) hover:text-(--cl-primary-hover) cursor-pointer"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => onDelete(r.id)}
-                        className="text-[10px] text-red-400 hover:text-red-600"
+                        className="text-[10px] text-red-400 hover:text-red-600 cursor-pointer"
                       >
                         Delete
                       </button>
@@ -380,7 +380,7 @@ const CommentItem = ({
   );
 };
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+// Main 
 
 const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   const [comic, setComic] = useState<any>(null);
@@ -920,11 +920,11 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     <button
       onClick={handleToggleLibrary}
       disabled={libraryLoading}
-      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-200
+      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-all duration-200 cursor-pointer
         ${
           inLibrary
             ? "bg-red-50 text-red-600 border-red-200"
-            : "bg-green-50 text-green-600 border-green-200"
+            : "bg-(--cl-primary) text-(--cl-text) border-(--cl-border)"
         } ${className}`}
     >
       <svg
@@ -956,7 +956,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   const ReviewButton = ({ className = "" }: { className?: string }) => (
     <button
       onClick={() => document.getElementById("review-input")?.focus()}
-      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition-all duration-200 ${className}`}
+      className={`flex items-center justify-center cursor-pointer gap-2 py-2.5 rounded-xl text-sm font-semibold border border-(--cl-border) bg-(--cl-primary) text-(--cl-text) hover:bg-(--cl-primary-hover) transition-all duration-200 ${className}`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -982,7 +982,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       {/* Back button */}
       <button
         onClick={() => navigate("home")}
-        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 mb-5 transition"
+        className="flex items-center gap-1.5 text-sm text-(--cl-text-muted) hover:opacity-80 cursor-pointer mb-5 transition"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -1016,7 +1016,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                   className="w-full object-cover"
                 />
               ) : (
-                <div className="w-full aspect-[2/3] bg-slate-100 flex items-center justify-center text-slate-300 text-xs">
+                <div className="w-full aspect-[2/3] bg-(--cl-surface) flex items-center justify-center text-(--cl-text-muted) text-xs">
                   No Cover
                 </div>
               )}
@@ -1046,11 +1046,11 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                     Manual Upload
                   </div>
                 )}
-                <h1 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 font-heading leading-tight">
+                <h1 className="text-lg sm:text-xl font-bold text-(--cl-text) mb-2 font-heading leading-tight">
                   {displayTitle}
                 </h1>
-                <p className="text-xs text-slate-500 mb-2">
-                  <span className="font-medium text-slate-700">Author:</span>{" "}
+                <p className="text-xs text-(--cl-text-muted) mb-2">
+                  <span className="font-medium text-(--cl-text-muted)">Author:</span>{" "}
                   {displayAuthor}
                 </p>
                 <BadgeRow />
@@ -1059,13 +1059,13 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
               {/* Average score mini on mobile */}
               {avgScore && (
                 <div className="flex items-center gap-1 mt-2">
-                  <span className="text-amber-400 text-base">★</span>
-                  <span className="text-lg font-bold text-slate-800">
+                  <span className="text-(--cl-amber) text-base">★</span>
+                  <span className="text-lg font-bold text-(--cl-text)">
                     {avgScore}
                   </span>
-                  <span className="text-slate-400 text-xs">/10</span>
+                  <span className="text-(--cl-text-muted) text-xs">/10</span>
                   {totalVotes > 0 && (
-                    <span className="text-slate-400 text-xs ml-1">
+                    <span className="text-(--cl-text-muted) text-xs ml-1">
                       ({totalVotes})
                     </span>
                   )}
@@ -1075,8 +1075,8 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           </div>
 
           {/* Rate This */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-4">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+          <div className="bg-(--cl-surface) border border-(--cl-border) rounded-2xl p-4">
+            <p className="text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-3">
               Rate This
             </p>
             <StarRating
@@ -1086,18 +1086,18 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
               onClick={handleRate}
             />
             {userRating > 0 && (
-              <p className="text-xs text-slate-400 mt-2">
+              <p className="text-xs text-(--cl-text-muted) mt-2">
                 Rating kamu:{" "}
-                <span className="text-amber-500 font-semibold">
+                <span className="text-(--cl-amber) font-semibold">
                   {userRating}/10
                 </span>
               </p>
             )}
             {!session && (
-              <p className="text-xs text-slate-400 mt-2">
+              <p className="text-xs text-(--cl-text-muted) mt-2">
                 <button
                   onClick={() => navigate("auth")}
-                  className="text-indigo-500 hover:underline"
+                  className="text-(--cl-primary) hover:underline"
                 >
                   Login
                 </button>{" "}
@@ -1107,7 +1107,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
             {userRating > 0 && (
               <button
                 onClick={handleDeleteRating}
-                className="text-xs text-red-500 hover:underline mt-2"
+                className="text-xs text-red-500 hover:underline mt-2 cursor-pointer"
               >
                 Hapus rating
               </button>
@@ -1145,12 +1145,12 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                 Uploaded Manual
               </div>
             )}
-            <h1 className="text-3xl font-bold text-slate-900 mb-2 font-heading">
+            <h1 className="text-3xl font-bold text-(--cl-text) mb-2 font-heading">
               {displayTitle}
             </h1>
             <div className="flex items-center gap-4 flex-wrap mb-6">
-              <span className="text-sm text-slate-500">
-                <span className="font-medium text-slate-700">Author:</span>{" "}
+              <span className="text-sm text-(--cl-text-muted)">
+                <span className="font-medium text-(--cl-text-muted)">Author:</span>{" "}
                 {displayAuthor}
               </span>
               <span
@@ -1167,18 +1167,18 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           </div>
 
           {/* Rating Distribution */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-4 lg:p-5 mb-6 flex flex-col sm:flex-row gap-4 lg:gap-6">
-            <div className="flex items-center sm:flex-col sm:items-center gap-3 sm:gap-0 sm:text-center sm:shrink-0 sm:pr-6 sm:border-r sm:border-slate-100">
+          <div className="bg-(--cl-surface) border border-(--cl-border) rounded-2xl p-4 lg:p-5 mb-6 flex flex-col sm:flex-row gap-4 lg:gap-6">
+            <div className="flex items-center sm:flex-col sm:items-center gap-3 sm:gap-0 sm:text-center sm:shrink-0 sm:pr-6 sm:border-r sm:border-(--cl-border)">
               <div className="flex items-center gap-1">
-                <span className="text-amber-400 text-xl lg:text-2xl">★</span>
-                <span className="text-3xl lg:text-4xl font-bold text-slate-800">
+                <span className="text-(--cl-amber) text-xl lg:text-2xl">★</span>
+                <span className="text-3xl lg:text-4xl font-bold text-(--cl-text)">
                   {avgScore ?? "—"}
                 </span>
-                <span className="text-slate-400 text-base lg:text-lg self-end mb-0.5">
+                <span className="text-(--cl-text-muted) text-base lg:text-lg self-end mb-0.5">
                   /10
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-(--cl-text-muted)">
                 {totalVotes > 0
                   ? `${totalVotes.toLocaleString()} ${totalVotes === 1 ? "vote" : "votes"}`
                   : "Belum ada votes"}
@@ -1198,10 +1198,10 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
 
           {/* Synopsis */}
           <section className="mb-6">
-            <h2 className="text-base lg:text-lg font-bold text-slate-800 mb-3">
+            <h2 className="text-base lg:text-lg font-bold text-(--cl-text) mb-3">
               Synopsis
             </h2>
-            <p className="text-slate-600 leading-relaxed text-sm whitespace-pre-line">
+            <p className="text-(--cl-text-muted) opacity-90 leading-relaxed text-sm whitespace-pre-line">
               {description}
             </p>
           </section>
@@ -1209,14 +1209,14 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           {/* Genres */}
           {Array.isArray(comic?.genres) && comic.genres.length > 0 && (
             <section className="mb-6 lg:mb-8">
-              <h2 className="text-base lg:text-lg font-bold text-slate-800 mb-3">
+              <h2 className="text-base lg:text-lg font-bold text-(--cl-text) mb-3">
                 Genres
               </h2>
               <div className="flex flex-wrap gap-2">
                 {comic.genres.map((g: string) => (
                   <span
                     key={g}
-                    className="px-3 py-1 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 text-xs font-medium rounded-full transition-all"
+                    className="px-3 py-1 bg-(--cl-primary) text-(--cl-text) hover:bg-(--cl-primary-hover) text-xs font-medium rounded-full transition-all"
                   >
                     {g}
                   </span>
@@ -1228,32 +1228,32 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           {/* Community Reviews */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base lg:text-lg font-bold text-slate-800">
+              <h2 className="text-base lg:text-lg font-bold text-(--cl-text)">
                 Community Reviews
               </h2>
-              <span className="text-sm text-slate-400">
+              <span className="text-sm text-(--cl-text-muted)">
                 {comments.length} {comments.length === 1 ? "review" : "reviews"}
               </span>
             </div>
 
             {/* Reply to indicator */}
             {replyTo && (
-              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-indigo-50 border border-indigo-100 rounded-xl">
-                <span className="text-xs text-indigo-600 font-medium">
+              <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-(--cl-surface) border border-(--cl-border) rounded-xl">
+                <span className="text-xs text-(--cl-text) font-medium">
                   Replying to comment
                 </span>
                 <button
                   onClick={() => setReplyTo(null)}
-                  className="text-xs text-slate-400 hover:text-red-500 ml-auto"
+                  className="text-xs text-(--cl-text-muted) hover:text-red-500 ml-auto cursor-pointer"
                 >
                   Cancel
                 </button>
               </div>
             )}
 
-            <div className="bg-white border border-slate-100 rounded-2xl p-3 lg:p-4 mb-4">
+            <div className="bg-(--cl-surface) border border-(--cl-border) rounded-2xl p-3 lg:p-4 mb-4">
               <div className="flex gap-2 lg:gap-3">
-                <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-sm shrink-0">
+                <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-(--cl-surface-2) flex items-center justify-center text-(--cl-text-muted) font-bold text-sm shrink-0">
                   {session ? session.user.email?.[0]?.toUpperCase() : "?"}
                 </div>
                 <textarea
@@ -1267,14 +1267,14 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   disabled={!session}
-                  className="flex-1 text-sm text-slate-700 placeholder-slate-400 border-none outline-none resize-none bg-transparent"
+                  className="flex-1 text-sm text-(--cl-text) placeholder-(--cl-text-muted) border-none outline-none resize-none bg-transparent"
                 />
               </div>
-              <div className="border-t border-slate-100 mt-3 pt-3 flex justify-between items-center">
+              <div className="border-t border-(--cl-border) mt-3 pt-3 flex justify-between items-center">
                 {!session && (
                   <button
                     onClick={() => navigate("auth")}
-                    className="text-xs text-indigo-500 hover:underline"
+                    className="text-xs text-(--cl-primary) hover:underline cursor-pointer"
                   >
                     Login untuk review →
                   </button>
@@ -1283,7 +1283,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                   <button
                     onClick={handleComment}
                     disabled={!session || !commentText.trim() || submitting}
-                    className="px-4 py-1.5 bg-slate-800 text-white text-xs lg:text-sm font-semibold rounded-lg hover:bg-slate-700 transition disabled:opacity-40"
+                    className="px-4 py-1.5 bg-(--cl-primary) text-(--cl-text) text-xs lg:text-sm font-semibold rounded-lg hover:bg-(--cl-primary-hover) transition disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                   >
                     {submitting ? "Posting..." : "Post Review"}
                   </button>
@@ -1292,7 +1292,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
             </div>
 
             {comments.length === 0 ? (
-              <div className="text-center py-10 text-slate-400 text-sm">
+              <div className="text-center py-10 text-(--cl-text-muted) text-sm">
                 Belum ada review. Jadilah yang pertama! 🎉
               </div>
             ) : (
