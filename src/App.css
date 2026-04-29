@@ -1,12 +1,18 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&display=swap");
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0px 1000px var(--cl-surface-2) inset !important;
   -webkit-text-fill-color: var(--cl-text) !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+html {
+  transition: background-color 0.3s ease;
 }
 
 @theme {
@@ -40,24 +46,111 @@ input:-webkit-autofill:focus {
   --cl-warning-light: #fffbeb;
 }
 
-/* dark mode override (Midnight Teal) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --cl-bg: #0a1628;
-    --cl-surface: #0f2035;
-    --cl-surface-2: #1d3a55;
-    --cl-border: #1d3a55;
-    --cl-primary: #0d9488;
-    --cl-primary-hover: #0f766e;
-    --cl-primary-soft: #042f2e;
-    --cl-text: #f0fdfa;
-    --cl-text-muted: #7dd3c8;
-    --cl-accent: #f59e0b;
-    --cl-error: #f87171;
-    --cl-error-light: #7f1d1d;
-    --cl-success: #10b981;
-    --cl-success-light: #064e3b;
-    --cl-warning: #f97316;
-    --cl-warning-light: #431407;
+.dark {
+  --cl-bg: #0a1628;
+  --cl-surface: #0f2035;
+  --cl-surface-2: #1d3a55;
+  --cl-border: #1d3a55;
+  --cl-primary: #0d9488;
+  --cl-primary-hover: #0f766e;
+  --cl-primary-soft: #042f2e;
+  --cl-text: #f0fdfa;
+  --cl-text-muted: #7dd3c8;
+  --cl-accent: #f59e0b;
+  --cl-error: #f87171;
+  --cl-error-light: #7f1d1d;
+  --cl-success: #10b981;
+  --cl-success-light: #064e3b;
+  --cl-warning: #f97316;
+  --cl-warning-light: #431407;
+}
+
+@layer components {
+  /* theme toggle pill */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px 6px 6px;
+    border-radius: 9999px;
+    border: 1px solid var(--cl-border);
+    background: transparent;
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      border-color 0.2s;
+    width: fit-content;
+  }
+
+  .theme-toggle:hover {
+    background: var(--cl-primary-hover);
+  }
+
+  /* pill track */
+  .toggle-track {
+    width: 36px;
+    height: 20px;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--cl-border) 80%, transparent);
+    position: relative;
+    transition: background 0.25s;
+    flex-shrink: 0;
+  }
+
+  /* active = dark mode on */
+  .theme-toggle[data-active="true"] .toggle-track {
+    background: #1d9e75;
+  }
+
+  /* thumb (lingkaran yang geser) */
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    color: #888;
+  }
+
+  .theme-toggle[data-active="true"] .toggle-thumb {
+    transform: translateX(16px);
+    color: #1d9e75;
+  }
+
+  /* label text */
+  .toggle-label {
+    font-size: 13px;
+    color: var(--cl-text-muted);
+  }
+
+  .theme-toggle[data-active="true"] .toggle-label {
+    color: white;
+  }
+
+  .theme-toggle-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    border: 0.5px solid var(--cl-border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: var(--cl-text-muted);
+    flex-shrink: 0;
+  }
+
+  .theme-toggle-icon[data-active="true"] {
+    background: var(--cl-primary);
+    color: white;
+    border-color: var(--cl-primary);
   }
 }
