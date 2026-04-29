@@ -4,6 +4,7 @@ import { fetchFromAniList } from "../lib/anilist";
 import { SEARCH_QUERY } from "../lib/queries";
 import type { NavigateFn, Page } from "../types";
 import logo from "../assets/ComicList-logoFix.svg";
+import { DarkMode } from "./DarkMode";
 
 interface NavbarProps {
   session: any;
@@ -28,6 +29,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const { isDarkMode, toggleTheme } = DarkMode();
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -258,6 +260,48 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
     </svg>
   );
 
+  const moonIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008" />
+    </svg>
+  );
+
+  const sunIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={24}
+      height={24}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+      <path d="M12 5l0 -2" />
+      <path d="M17 7l1.4 -1.4" />
+      <path d="M19 12l2 0" />
+      <path d="M17 17l1.4 1.4" />
+      <path d="M12 19l0 2" />
+      <path d="M7 17l-1.4 1.4" />
+      <path d="M6 12l-2 0" />
+      <path d="M7 7l-1.4 -1.4" />
+    </svg>
+  );
+
   const SkeletonItem = () => (
     <div className="flex items-center gap-3 w-full p-2.5 animate-pulse">
       <div className="w-10 h-14 bg-(--cl-surface-2) rounded-lg" />
@@ -281,10 +325,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
         </p>
 
         {/* Search */}
-        <div
-          ref={searchRef}
-          className="relative flex-1 max-w-xl"
-        >
+        <div ref={searchRef} className="relative flex-1 max-w-xl">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-(--cl-text-muted) pointer-events-none">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -418,7 +459,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                         key={page}
                         onClick={() => go(page)}
                         className={`w-full text-left px-4 py-2 text-sm transition hover:bg-(--cl-primary-hover) flex items-center gap-3
-                        ${currentPage === page ? "text-white bg-(--cl-primary) font-semibold" : "text-(--cl-text-muted) hover:text-white"}`}
+      ${currentPage === page ? "text-white bg-(--cl-primary) font-semibold" : "text-(--cl-text-muted) hover:text-white"}`}
                       >
                         <span className="flex items-center opacity-70">
                           {icon}
@@ -430,43 +471,59 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                     {/* Divider */}
                     <div className="my-1 border-t border-(--cl-border)" />
 
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition flex items-center gap-3"
-                    >
-                      <span className="opacity-70">{logoutIcon}</span>
-                      <span className="font-medium">Log Out</span>
-                    </button>
-                  </div>
+                    {/* Actions: theme toggle + logout */}
+                    <div className="px-3 py-2 flex flex-col gap-1">
+                      <button
+                        className="theme-toggle w-full"
+                        onClick={toggleTheme}
+                        data-active={isDarkMode}
+                      >
+                        <div className="toggle-track">
+                          <div className="toggle-thumb">
+                            {isDarkMode ? moonIcon : sunIcon}
+                          </div>
+                        </div>
+                        <span className="toggle-label">
+                          {isDarkMode ? "Dark Mode" : "Light Mode"}
+                        </span>
+                      </button>
 
-                  {/* Mobile logout only */}
-                  <div className="py-1 lg:hidden">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition flex items-center gap-3"
-                    >
-                      <span className="opacity-70">{logoutIcon}</span>
-                      <span className="font-medium">Log Out</span>
-                    </button>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition flex items-center gap-3"
+                      >
+                        <span className="opacity-70">{logoutIcon}</span>
+                        <span className="font-medium">Log Out</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           ) : (
-            <>
+            <div className="flex items-center gap-2">
               <span
                 onClick={() => navigate("auth")}
-                className="text-sm text-(--cl-text-muted) font-medium cursor-pointer hover:opacity-80 transition hidden sm:block"
+                className="text-sm text-(--cl-text-muted) whitespace-nowrap font-medium cursor-pointer hover:opacity-80 transition hidden sm:block"
               >
                 Log In
               </span>
               <button
                 onClick={() => navigate("auth")}
-                className="px-4 py-2 bg-(--cl-primary) text-white rounded-lg text-sm font-semibold hover:bg-(--cl-primary-hover) transition"
+                className="px-4 py-2 bg-(--cl-primary) text-white whitespace-nowrap rounded-lg text-sm font-semibold hover:bg-(--cl-primary-hover) transition"
               >
                 Sign Up
               </button>
-            </>
+              <button
+                className="theme-toggle-icon hover:bg-(--cl-primary-hover) hover:text-white"
+                onClick={toggleTheme}
+                data-active={isDarkMode}
+              >
+                <div className="toggle-thumb-standalone">
+                  {isDarkMode ? moonIcon : sunIcon}
+                </div>
+              </button>
+            </div>
           )}
         </div>
       </nav>
