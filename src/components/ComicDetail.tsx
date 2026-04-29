@@ -110,7 +110,7 @@ const StarRating = ({
         onMouseLeave={() => onHover(0)}
         onClick={() => onClick(i + 1)}
         className={`text-lg lg:text-xl transition-colors cursor-pointer ${
-          (hover || value) >= i + 1 ? "text-amber-400" : "text-slate-200"
+          (hover || value) >= i + 1 ? "text-(--cl-amber)" : "text-(--cl-border)"
         }`}
         style={{ background: "none", border: "none", padding: "0 1px" }}
       >
@@ -380,7 +380,7 @@ const CommentItem = ({
   );
 };
 
-// Main 
+// Main
 
 const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   const [comic, setComic] = useState<any>(null);
@@ -843,17 +843,17 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     }
   });
 
-  // ── Loading ──
+  // Loading 
   if (loading)
     return (
       <div className="max-w-screen-xl mx-auto px-4 lg:px-6 py-8 flex flex-col lg:flex-row gap-6 animate-pulse">
         <div className="w-full lg:w-64 lg:shrink-0">
-          <div className="bg-slate-200 rounded-2xl w-full aspect-[2/3] max-w-xs mx-auto lg:max-w-none" />
+          <div className="bg-(--cl-surface-2) rounded-2xl w-full aspect-[2/3] max-w-xs mx-auto lg:max-w-none" />
         </div>
         <div className="flex-1 space-y-4 pt-2">
-          <div className="h-8 bg-slate-200 rounded w-2/3" />
-          <div className="h-4 bg-slate-100 rounded w-1/3" />
-          <div className="h-32 bg-slate-100 rounded" />
+          <div className="h-8 bg-(--cl-surface-2) rounded-lg w-2/3" />
+          <div className="h-4 bg-(--cl-surface) rounded-lg w-1/3" />
+          <div className="h-32 bg-(--cl-surface) rounded-lg" />
         </div>
       </div>
     );
@@ -924,7 +924,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
         ${
           inLibrary
             ? "bg-red-50 text-red-600 border-red-200"
-            : "bg-(--cl-primary) text-(--cl-text) border-(--cl-border)"
+            : "bg-(--cl-primary) text-white hover:bg-(--cl-primary-hover) border-(--cl-border)"
         } ${className}`}
     >
       <svg
@@ -956,7 +956,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
   const ReviewButton = ({ className = "" }: { className?: string }) => (
     <button
       onClick={() => document.getElementById("review-input")?.focus()}
-      className={`flex items-center justify-center cursor-pointer gap-2 py-2.5 rounded-xl text-sm font-semibold border border-(--cl-border) bg-(--cl-primary) text-(--cl-text) hover:bg-(--cl-primary-hover) transition-all duration-200 ${className}`}
+      className={`flex items-center justify-center cursor-pointer gap-2 py-2.5 rounded-xl text-sm font-semibold border border-(--cl-border) bg-(--cl-primary) text-white hover:bg-(--cl-primary-hover) transition-all duration-200 ${className}`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -1050,7 +1050,9 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                   {displayTitle}
                 </h1>
                 <p className="text-xs text-(--cl-text-muted) mb-2">
-                  <span className="font-medium text-(--cl-text-muted)">Author:</span>{" "}
+                  <span className="font-medium text-(--cl-text-muted)">
+                    Author:
+                  </span>{" "}
                   {displayAuthor}
                 </p>
                 <BadgeRow />
@@ -1150,7 +1152,9 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
             </h1>
             <div className="flex items-center gap-4 flex-wrap mb-6">
               <span className="text-sm text-(--cl-text-muted)">
-                <span className="font-medium text-(--cl-text-muted)">Author:</span>{" "}
+                <span className="font-medium text-(--cl-text-muted)">
+                  Author:
+                </span>{" "}
                 {displayAuthor}
               </span>
               <span
@@ -1216,7 +1220,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                 {comic.genres.map((g: string) => (
                   <span
                     key={g}
-                    className="px-3 py-1 bg-(--cl-primary) text-(--cl-text) hover:bg-(--cl-primary-hover) text-xs font-medium rounded-full transition-all"
+                    className="px-3 py-1 bg-(--cl-primary) text-white hover:bg-(--cl-primary-hover) text-xs font-medium rounded-full transition-all"
                   >
                     {g}
                   </span>
@@ -1283,7 +1287,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                   <button
                     onClick={handleComment}
                     disabled={!session || !commentText.trim() || submitting}
-                    className="px-4 py-1.5 bg-(--cl-primary) text-(--cl-text) text-xs lg:text-sm font-semibold rounded-lg hover:bg-(--cl-primary-hover) transition disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+                    className="px-4 py-1.5 bg-(--cl-primary) text-white text-xs lg:text-sm font-semibold rounded-lg hover:bg-(--cl-primary-hover) transition disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                   >
                     {submitting ? "Posting..." : "Post Review"}
                   </button>

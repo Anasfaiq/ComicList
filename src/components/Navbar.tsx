@@ -260,10 +260,10 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
 
   const SkeletonItem = () => (
     <div className="flex items-center gap-3 w-full p-2.5 animate-pulse">
-      <div className="w-10 h-14 bg-slate-200 rounded-lg" />
+      <div className="w-10 h-14 bg-(--cl-surface-2) rounded-lg" />
       <div className="flex-1 space-y-2">
-        <div className="h-3 bg-slate-200 rounded w-3/4" />
-        <div className="h-2 bg-slate-100 rounded w-1/3" />
+        <div className="h-3 bg-(--cl-surface-2) rounded w-3/4" />
+        <div className="h-2 bg-(--cl-surface) rounded w-1/3" />
       </div>
     </div>
   );
@@ -418,7 +418,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                         key={page}
                         onClick={() => go(page)}
                         className={`w-full text-left px-4 py-2 text-sm transition hover:bg-(--cl-primary-hover) flex items-center gap-3
-                        ${currentPage === page ? "text-(--cl-text) bg-(--cl-primary) font-semibold" : "text-(--cl-text-muted)"}`}
+                        ${currentPage === page ? "text-white bg-(--cl-primary) font-semibold" : "text-(--cl-text-muted) hover:text-white"}`}
                       >
                         <span className="flex items-center opacity-70">
                           {icon}

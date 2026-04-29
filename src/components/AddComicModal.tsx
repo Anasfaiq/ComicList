@@ -154,7 +154,7 @@ const SearchTab = ({ session }: { session: any }) => {
         <button
           onClick={handleSearch}
           disabled={searching || !query.trim()}
-          className="px-4 py-2 bg-(--cl-primary) text-(--cl-text) rounded-xl text-sm font-semibold
+          className="px-4 py-2 bg-(--cl-primary) text-white rounded-xl text-sm font-semibold
                      hover:bg-(--cl-primary-hover) transition disabled:opacity-40"
         >
           {searching ? (
@@ -213,7 +213,7 @@ const SearchTab = ({ session }: { session: any }) => {
                     {item.title.english || item.title.romaji}
                   </p>
                   <span
-                    className="inline-block text-(--cl-text) text-xs font-bold px-1.5 py-0.5 rounded mt-0.5"
+                    className="inline-block text-white text-xs font-bold px-1.5 py-0.5 rounded mt-0.5"
                     style={{
                       backgroundColor: badgeColor(item.countryOfOrigin),
                     }}
@@ -228,7 +228,7 @@ const SearchTab = ({ session }: { session: any }) => {
                     ${
                       isSaved
                         ? "bg-(--cl-success-light) text-(--cl-success) border border-(--cl-border)"
-                        : "bg-(--cl-primary) text-(--cl-text) hover:bg-(--cl-primary-hover) disabled:opacity-40"
+                        : "bg-(--cl-primary) text-white hover:bg-(--cl-primary-hover) disabled:opacity-40"
                     }`}
                 >
                   {isSaving ? "..." : isSaved ? "Added ✓" : "Add"}
@@ -397,7 +397,9 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
               />
             </div>
             <div className="flex flex-col gap-2 pt-1">
-              <p className="text-xs text-(--cl-text-muted)">{coverFile?.name}</p>
+              <p className="text-xs text-(--cl-text-muted)">
+                {coverFile?.name}
+              </p>
               <p className="text-xs text-(--cl-text-muted)">
                 {coverFile
                   ? (coverFile.size / 1024 / 1024).toFixed(2) + " MB"
@@ -464,7 +466,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
           placeholder="e.g. Solo Leveling"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2.5 border border-(--cl-border) rounded-xl text-sm
+          className="w-full px-3 py-2.5 border border-(--cl-border) placeholder:text-(--cl-text) rounded-xl text-sm
                      focus:outline-none focus:ring-2 focus:ring-(--cl-primary)"
         />
       </div>
@@ -479,7 +481,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
           placeholder="e.g. Chugong"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
-          className="w-full px-3 py-2.5 border border-(--cl-border) rounded-xl text-sm
+          className="w-full px-3 py-2.5 border border-(--cl-border) placeholder:text-(--cl-text) rounded-xl text-sm
                      focus:outline-none focus:ring-2 focus:ring-(--cl-primary)"
         />
       </div>
@@ -547,14 +549,15 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
       {/* Synopsis */}
       <div>
         <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
-          Synopsis <span className="text-(--cl-text-muted) opacity-75">(opsional)</span>
+          Synopsis{" "}
+          <span className="text-(--cl-text-muted) opacity-75">(opsional)</span>
         </label>
         <textarea
           rows={3}
           placeholder="Tulis sinopsis singkat tentang komik ini..."
           value={synopsis}
           onChange={(e) => setSynopsis(e.target.value)}
-          className="w-full px-3 py-2.5 border border-(--cl-border) rounded-xl text-sm resize-none
+          className="w-full px-3 py-2.5 border border-(--cl-border) placeholder:text-(--cl-text) rounded-xl text-sm resize-none
                      focus:outline-none focus:ring-2 focus:ring-(--cl-primary)"
         />
       </div>
@@ -562,7 +565,8 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
       {/* Genres */}
       <div>
         <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
-          Genre <span className="text-(--cl-text-muted) opacity-75">(opsional)</span>
+          Genre{" "}
+          <span className="text-(--cl-text-muted) opacity-75">(opsional)</span>
         </label>
 
         {/* Preset Chips */}
@@ -596,7 +600,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
                 addCustomGenre();
               }
             }}
-            className="flex-1 px-3 py-2 border border-(--cl-border) rounded-xl text-xs
+            className="flex-1 px-3 py-2 border border-(--cl-border) placeholder:text-(--cl-text) rounded-xl text-xs
                        focus:outline-none focus:ring-2 focus:ring-(--cl-primary)"
           />
           <button
@@ -646,8 +650,8 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
       <button
         onClick={handleSubmit}
         disabled={submitting}
-        className="w-full py-2.5 bg-(--cl-text) text-(--cl-surface) rounded-xl text-sm font-bold
-                   hover:bg-(--cl-text-muted) transition disabled:opacity-40"
+        className="w-full py-2.5 text-white bg-(--cl-primary) rounded-xl text-sm font-bold
+                   hover:bg-(--cl-primary-hover) transition disabled:opacity-40"
       >
         {submitting ? "Menyimpan..." : "Tambah ke Database"}
       </button>
@@ -674,7 +678,7 @@ const AddComicModal = ({ session, onClose }: AddComicModalProps) => {
           <button
             onClick={onClose}
             className="w-7 h-7 flex items-center justify-center rounded-full text-(--cl-text-muted)
-                       hover:bg-(--cl-primary) hover:text-(--cl-text-primary-hover) transition text-lg font-light"
+                       hover:bg-(--cl-primary) hover:text-white transition text-lg font-light"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

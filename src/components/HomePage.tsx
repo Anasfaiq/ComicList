@@ -176,7 +176,6 @@ const ComicCard = ({
   );
 };
 
-
 // Main
 interface HomePageProps {
   navigate: NavigateFn;
@@ -339,7 +338,11 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`tab-btn rounded-xl px-4 py-2 flex items-center gap-2 whitespace-nowrap border border-(--cl-border) text-(--cl-text) font-accent font-medium text-sm transition-all cursor-pointer hover:bg-(--cl-surface-2) ${activeTab === tab.id ? "bg-(--cl-surface-2)" : ""}`}
+                className={`tab-btn rounded-xl px-4 py-2 flex items-center gap-2 whitespace-nowrap border border-(--cl-border) text-(--cl-text) font-accent font-medium text-sm transition-all cursor-pointer hover:bg-(--cl-surface-2) ${
+                  activeTab === tab.id
+                    ? "bg-(--cl-primary) text-white hover:text-(--cl-text) border-(--cl-primary)"
+                    : "text-(--cl-text-muted) hover:bg-(--cl-surface-2)"
+                }`}
               >
                 <span>{TAB_ICONS[tab.id]}</span>
                 {tab.label}
@@ -382,7 +385,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
             </p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="w-full bg-(--cl-primary) text-(--cl-text) font-semibold py-2 rounded-lg text-sm
+              className="w-full bg-(--cl-primary) text-white font-semibold py-2 rounded-lg text-sm
                          hover:bg-(--cl-primary-hover) transition"
             >
               Add to Database

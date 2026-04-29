@@ -188,7 +188,7 @@ const Profile = ({ session, navigate }: ProfileProps) => {
 
         <button
           onClick={() => navigate("dashboard")}
-          className="w-full py-3 bg-(--cl-primary) text-(--cl-text) rounded-xl font-bold hover:bg-(--cl-primary-hover) transition"
+          className="w-full py-3 bg-(--cl-primary) text-white rounded-xl font-bold hover:bg-(--cl-primary-hover) transition"
         >
           Kembali ke Dashboard
         </button>

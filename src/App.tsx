@@ -54,7 +54,12 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-(--cl-bg) pb-20">
-      <Navbar key={navKey} session={session} currentPage={currentPage} navigate={navigate} />
+      <Navbar
+        key={navKey}
+        session={session}
+        currentPage={currentPage}
+        navigate={navigate}
+      />
 
       {currentPage === "home" && (
         <HomePage navigate={navigate} session={session} />
@@ -78,7 +83,7 @@ const App = () => {
 
       {currentPage === "dashboard" && !session && (
         <div className="text-center py-20">
-          <p className="text-slate-500 mb-4">Sesi kamu udah habis.</p>
+          <p className="text-(--cl-text-muted) mb-4">Sesi kamu udah habis.</p>
           <button
             onClick={() => navigate("auth")}
             className="px-4 py-2 bg-(--cl-primary) text-white rounded-lg text-sm font-semibold"

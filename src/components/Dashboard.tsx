@@ -65,7 +65,7 @@ const Dashboard = ({ session, navigate }: DashboardProps) => {
         <button
           onClick={() => navigate("home")}
           className="flex items-center gap-1.5 px-4 py-2 bg-(--cl-primary) border border-(--cl-border)
-                     rounded-lg text-sm text-(--cl-text) font-medium hover:bg-(--cl-primary-hover) transition"
+                     rounded-lg text-sm text-white font-medium hover:bg-(--cl-primary-hover) transition"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
