@@ -8,6 +8,7 @@ import Dashboard from "./components/Dashboard";
 import ComicDetail from "./components/ComicDetail";
 import Profile from "./components/Profile";
 import UserProfile from "./components/UserProfile";
+import About from "./components/About";
 import "./App.css";
 
 const App = () => {
@@ -83,6 +84,8 @@ const App = () => {
       {currentPage === "profile" && session && (
         <Profile session={session} navigate={navigate} />
       )}
+
+      {currentPage === "about" && <About navigate={navigate} />}
 
       {currentPage === "user-profile" && viewingUserId && (
         <UserProfile
