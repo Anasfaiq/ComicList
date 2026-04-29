@@ -24,7 +24,7 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
     setMessage(null);
     if (!email || !password) {
       return setMessage({
-        text: "Email dan password wajib diisi!",
+        text: "Email and password are required!",
         type: "error",
       });
     }
@@ -48,7 +48,7 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
     setMessage(null);
     if (!email || !password) {
       return setMessage({
-        text: "Email dan password wajib diisi!",
+        text: "Email and password are required!",
         type: "error",
       });
     }
@@ -59,7 +59,7 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
     });
     if (error) {
       setMessage({
-        text: "Password salah atau akun tidak ditemukan!",
+        text: "Incorrect password or account not found!",
         type: "error",
       });
     } else {
@@ -89,16 +89,16 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-(--cl-text) mb-2">
-              Berhasil Daftar!
+              Registration successful!
             </h2>
             <p className="text-(--cl-text-muted)">
-              Cek email lu untuk verifikasi akun!
+              Check your email to verify your account!
             </p>
             <button
               onClick={() => setIsSignedUp(false)}
               className="mt-8 text-sm text-(--cl-text-muted) hover:opacity-80 underline"
             >
-              Kembali ke Login
+              Back to Login
             </button>
           </div>
         ) : (
@@ -167,7 +167,7 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
                   <path d="M5 12l6 6" />
                   <path d="M5 12l6 -6" />
                 </svg>{" "}
-                Kembali
+                Back
               </button>
             )}
 
@@ -175,7 +175,7 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
               ComicList
             </h1>
             <p className="text-center text-(--cl-text-muted) text-sm mb-6">
-              {mode === "login" ? "Masuk ke akun mu" : "Buat akun baru"}
+              {mode === "login" ? "Login to your account" : "Create new account"}
             </p>
 
             {/* Mode toggle */}
@@ -234,7 +234,7 @@ const Auth = ({ onBack, onSuccess }: AuthProps) => {
                   ? "Loading..."
                   : mode === "login"
                     ? "Log In"
-                    : "Daftar Sekarang"}
+                    : "Sign Up Now"}
               </button>
             </div>
           </>
