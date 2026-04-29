@@ -5,7 +5,8 @@ export type Page =
   | "auth"
   | "detail"
   | "profile"
-  | "user-profile";
+  | "user-profile"
+  | "about";
 
 // navigate("detail", 123) — comicId wajib kalau ke detail
 export type NavigateFn = (
