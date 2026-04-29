@@ -7,6 +7,7 @@ import HomePage from "./components/HomePage";
 import Dashboard from "./components/Dashboard";
 import ComicDetail from "./components/ComicDetail";
 import Profile from "./components/Profile";
+import UserProfile from "./components/UserProfile";
 import "./App.css";
 
 const App = () => {
@@ -17,11 +18,13 @@ const App = () => {
   >(null);
   const currentPageRef = useRef<Page>("home");
   const [navKey, setNavKey] = useState(0);
+  const [viewingUserId, setViewingUserId] = useState<string | null>(null);
 
-  const navigate = (page: Page, comicId?: number | string) => {
+  const navigate = (page: Page, comicId?: number | string, userId?: string) => {
     setCurrentPage(page);
     currentPageRef.current = page;
     if (comicId !== undefined) setSelectedComicId(comicId);
+    if (userId !== undefined) setViewingUserId(userId);
     setNavKey((k) => k + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -79,6 +82,14 @@ const App = () => {
 
       {currentPage === "profile" && session && (
         <Profile session={session} navigate={navigate} />
+      )}
+
+      {currentPage === "user-profile" && viewingUserId && (
+        <UserProfile
+          userId={viewingUserId}
+          session={session}
+          navigate={navigate}
+        />
       )}
 
       {currentPage === "dashboard" && !session && (

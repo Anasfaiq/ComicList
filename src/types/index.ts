@@ -1,8 +1,18 @@
 // Navigation
-export type Page = "home" | "dashboard" | "auth" | "detail" | "profile";
+export type Page =
+  | "home"
+  | "dashboard"
+  | "auth"
+  | "detail"
+  | "profile"
+  | "user-profile";
 
 // navigate("detail", 123) — comicId wajib kalau ke detail
-export type NavigateFn = (page: Page, comicId?: number | string) => void;
+export type NavigateFn = (
+  page: Page,
+  comicId?: number | string,
+  userId?: string,
+) => void;
 
 // AniList Types
 export interface StaffEdge {

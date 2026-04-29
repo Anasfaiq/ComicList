@@ -156,6 +156,7 @@ const CommentItem = ({
   onDelete,
   onUpdate,
   session,
+  navigate,
   editingId,
   setEditingId,
   editText,
@@ -172,6 +173,7 @@ const CommentItem = ({
   editText: string;
   setEditText: (text: string) => void;
   session: any;
+  navigate: NavigateFn;
 }) => {
   const [showReplies, setShowReplies] = useState(true);
   const LikeIcon = ICONS.find((i) => i.name === "like")?.icon;
@@ -181,7 +183,10 @@ const CommentItem = ({
     <div className="space-y-3">
       <div className="bg-(--cl-surface) border border-(--cl-border) rounded-2xl p-4 shadow-sm">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-full overflow-hidden shrink-0 shadow-inner bg-(--cl-surface-2)">
+          <div
+            className="w-9 h-9 lg:w-10 lg:h-10 rounded-full overflow-hidden shrink-0 shadow-inner bg-(--cl-surface-2) cursor-pointer"
+            onClick={() => navigate("user-profile", undefined, comment.profiles.id)}
+          >
             {comment.profiles?.avatar_url ? (
               <img
                 src={comment.profiles.avatar_url}
@@ -196,7 +201,12 @@ const CommentItem = ({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-bold text-(--cl-text) text-sm">
+              <span
+                className="font-bold text-(--cl-text) cursor-pointer hover:underline text-sm"
+                onClick={() =>
+                  navigate("user-profile", undefined, comment.profiles.id)
+                }
+              >
                 {comment.profiles?.username ?? "Anonymous"}
               </span>
               <span className="text-(--cl-text-muted) text-[11px]">
@@ -290,7 +300,12 @@ const CommentItem = ({
               className="bg-(--cl-surface) border border-(--cl-border) rounded-xl p-3 shadow-sm"
             >
               <div className="flex items-start gap-2">
-                <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 bg-(--cl-surface-2)">
+                <div
+                  className="w-7 h-7 rounded-full overflow-hidden shrink-0 bg-(--cl-surface-2) cursor-pointer"
+                  onClick={() =>
+                    navigate("user-profile", undefined, r.profiles.id)
+                  }
+                >
                   {r.profiles?.avatar_url ? (
                     <img
                       src={r.profiles.avatar_url}
@@ -305,7 +320,12 @@ const CommentItem = ({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-bold text-(--cl-text) text-[11px]">
+                    <span
+                      className="font-bold text-(--cl-text) text-[11px] cursor-pointer hover:underline"
+                      onClick={() =>
+                        navigate("user-profile", undefined, r.profiles.id)
+                      }
+                    >
                       {r.profiles?.username}
                     </span>
                     <span className="text-(--cl-text-muted) text-[10px]">
@@ -843,7 +863,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     }
   });
 
-  // Loading 
+  // Loading
   if (loading)
     return (
       <div className="max-w-screen-xl mx-auto px-4 lg:px-6 py-8 flex flex-col lg:flex-row gap-6 animate-pulse">
@@ -1311,6 +1331,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                     onDelete={handleDeleteComment}
                     onUpdate={handleUpdateComment}
                     session={session}
+                    navigate={navigate}
                     editingId={editingId}
                     setEditingId={setEditingId}
                     editText={editText}

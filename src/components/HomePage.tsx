@@ -232,6 +232,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
 
     const result = sorted.map(([id, count], i) => ({
       rank: i + 1,
+      id: id,
       name: profiles?.find((p) => p.id === id)?.username ?? "Unknown",
       reviews: count,
     }));
@@ -246,6 +247,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
         `
       score,
       created_at,
+      user_id,
       profiles!fk_user (username), 
       comics!fk_comic (title)
     `,
@@ -262,6 +264,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
 
     const result = data.map((r: any) => ({
       // Cek apakah r.profiles itu object atau array, biasanya object kalau many-to-one
+      user_id: r.user_id,
       user: r.profiles?.username || r.profiles?.[0]?.username || "Unknown",
       title: r.comics?.title || r.comics?.[0]?.title || "Unknown",
       score: `${r.score}/10`,
@@ -405,7 +408,10 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
                     #{c.rank}
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-(--cl-text)">
+                    <p
+                      className="text-sm font-semibold text-(--cl-text) hover:underline cursor-pointer"
+                      onClick={() => navigate("user-profile", undefined, c.id)}
+                    >
                       {c.name}
                     </p>
                     <p className="text-xs text-(--cl-text-muted)">
@@ -426,7 +432,10 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
             <div className="space-y-4">
               {recentReviews.map((r, i) => (
                 <div key={i}>
-                  <p className="text-xs text-(--cl-text-muted) mb-0.5">
+                  <p
+                    className="text-xs text-(--cl-text-muted) mb-0.5 cursor-pointer hover:underline"
+                    onClick={() => navigate("user-profile", undefined, r.user_id)}
+                  >
                     {r.user} reviewed
                   </p>
                   <p className="text-sm font-semibold text-(--cl-text)">
