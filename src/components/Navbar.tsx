@@ -452,14 +452,14 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                     </div>
                   </div>
 
-                  {/* Desktop menu */}
+                  {/* DESKTOP MENU */}
                   <div className="hidden lg:block">
                     {MENU_ITEMS.map(({ label, page, icon }) => (
                       <button
                         key={page}
                         onClick={() => go(page)}
                         className={`w-full text-left px-4 py-2 text-sm transition hover:bg-(--cl-primary-hover) flex items-center gap-3
-      ${currentPage === page ? "text-white bg-(--cl-primary) font-semibold" : "text-(--cl-text-muted) hover:text-white"}`}
+                        ${currentPage === page ? "text-white bg-(--cl-primary) font-semibold" : "text-(--cl-text-muted) hover:text-white"}`}
                       >
                         <span className="flex items-center opacity-70">
                           {icon}
@@ -497,25 +497,53 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                       </button>
                     </div>
                   </div>
+
+                  {/* Mobile action menu only */}
+                  <div className="py-1 flex flex-col gap-2 lg:hidden">
+                    <button
+                      className="theme-toggle w-full px-4 py-2"
+                      onClick={toggleTheme}
+                      role="switch"
+                      aria-checked={isDarkMode}
+                      data-active={isDarkMode}
+                    >
+                      <div className="toggle-track">
+                        <div className="toggle-thumb">
+                          {isDarkMode ? moonIcon : sunIcon}
+                        </div>
+                      </div>
+                      <span className="toggle-label">
+                        {isDarkMode ? "Dark Mode" : "Light Mode"}
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 active:bg-red-100 transition flex items-center gap-3"
+                    >
+                      <span className="opacity-70">{logoutIcon}</span>
+                      <span className="font-medium">Log Out</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <>
               <span
                 onClick={() => navigate("auth")}
-                className="text-sm text-(--cl-text-muted) whitespace-nowrap font-medium cursor-pointer hover:opacity-80 transition hidden sm:block"
+                className="text-sm text-(--cl-text-muted) font-medium cursor-pointer hover:opacity-80 transition hidden sm:block"
               >
                 Log In
               </span>
               <button
                 onClick={() => navigate("auth")}
-                className="px-4 py-2 bg-(--cl-primary) text-white whitespace-nowrap rounded-lg text-sm font-semibold hover:bg-(--cl-primary-hover) transition"
+                className="px-4 py-2 bg-(--cl-primary) text-white rounded-lg text-sm font-semibold hover:bg-(--cl-primary-hover) transition"
               >
                 Sign Up
               </button>
               <button
-                className="theme-toggle-icon hover:bg-(--cl-primary-hover) hover:text-white"
+                className="theme-toggle-icon"
                 onClick={toggleTheme}
                 data-active={isDarkMode}
               >
@@ -523,7 +551,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                   {isDarkMode ? moonIcon : sunIcon}
                 </div>
               </button>
-            </div>
+            </>
           )}
         </div>
       </nav>
