@@ -59,7 +59,7 @@ const Dashboard = ({ session, navigate }: DashboardProps) => {
             Reading List
           </h2>
           <p className="text-(--cl-text-muted) text-sm">
-            Hai, {username}! Ini koleksi komik mu.
+            Hi, {username}! Here’s your comic collection.
           </p>
         </div>
         <button
@@ -84,7 +84,7 @@ const Dashboard = ({ session, navigate }: DashboardProps) => {
             <path d="M5 12l6 6" />
             <path d="M5 12l6 -6" />
           </svg>
-          Ke Home
+          Go to Home
         </button>
       </div>
 
@@ -96,17 +96,17 @@ const Dashboard = ({ session, navigate }: DashboardProps) => {
         <div className="bg-(--cl-surface) border border-(--cl-border) rounded-2xl p-16 text-center">
           <p className="text-5xl mb-4">📚</p>
           <p className="font-semibold text-(--cl-text) mb-2">
-            Belum ada komik di reading list mu
+            No comics in your reading list yet.
           </p>
           <p className="text-(--cl-text-muted) text-sm mb-6">
-            Tambah manga atau manhwa favorit mu dari halaman utama!
+            Add your favorite manga or manhwa from the homepage!
           </p>
           <button
             onClick={() => navigate("home")}
             className="px-5 py-2.5 bg-(--cl-surface) text-(--cl-text) rounded-lg text-sm font-semibold
                        hover:bg-(--cl-surface-2) transition"
           >
-            Browse Komik
+            Browse Comics
           </button>
         </div>
       ) : (

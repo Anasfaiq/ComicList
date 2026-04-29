@@ -185,7 +185,9 @@ const CommentItem = ({
         <div className="flex items-start gap-3">
           <div
             className="w-9 h-9 lg:w-10 lg:h-10 rounded-full overflow-hidden shrink-0 shadow-inner bg-(--cl-surface-2) cursor-pointer"
-            onClick={() => navigate("user-profile", undefined, comment.profiles.id)}
+            onClick={() =>
+              navigate("user-profile", undefined, comment.profiles.id)
+            }
           >
             {comment.profiles?.avatar_url ? (
               <img
@@ -671,7 +673,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     }
     const id = await ensureSupabaseId();
     if (!id) {
-      alert("Gagal menyimpan, coba lagi.");
+      alert("Failed to save. Try again.");
       return;
     }
 
@@ -699,7 +701,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
 
     if (error) {
       setUserRating(prev);
-      alert("Gagal menyimpan rating: " + error.message);
+      alert("Failed to save the rating: " + error.message);
       return;
     }
     loadRatings(id);
@@ -715,7 +717,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     if (!error) {
       setUserRating(0);
       loadRatings(supabaseId);
-    } else alert("Gagal hapus rating: " + error.message);
+    } else alert("Failed to delete the rating: " + error.message);
   };
 
   const handleComment = async () => {
@@ -726,7 +728,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     if (!commentText.trim()) return;
     const id = await ensureSupabaseId();
     if (!id) {
-      alert("Gagal menyimpan, coba lagi.");
+      alert("Failed to save. Try again.");
       return;
     }
 
@@ -741,7 +743,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       setCommentText("");
       setReplyTo(null);
       loadComments(id);
-    } else alert("Gagal post review: " + error.message);
+    } else alert("Failed to post the review: " + error.message);
     setSubmitting(false);
   };
 
@@ -753,7 +755,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       .eq("id", commentId)
       .eq("user_id", session.user.id);
     if (!error) loadComments(supabaseId!);
-    else alert("Gagal hapus comment: " + error.message);
+    else alert("Failed to delete the comment: " + error.message);
   };
 
   const handleUpdateComment = async (commentId: string) => {
@@ -767,7 +769,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
       setEditingId(null);
       setEditText("");
       loadComments(supabaseId!);
-    } else alert("Gagal update comment: " + error.message);
+    } else alert("Failed to update the comment: " + error.message);
   };
 
   const handleReplyClick = (id: string) => {
@@ -814,7 +816,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     }
     const id = await ensureSupabaseId();
     if (!id) {
-      alert("Gagal menyimpan, coba lagi.");
+      alert("Failed to save. Try again.");
       return;
     }
 
@@ -826,7 +828,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
         .eq("user_id", session.user.id)
         .eq("comic_id", id);
       if (!error) setInLibrary(false);
-      else alert("Gagal hapus dari library: " + error.message);
+      else alert("Failed to remove from library: " + error.message);
     } else {
       const { error } = await supabase
         .from("user_library")
@@ -835,7 +837,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
           { onConflict: "user_id,comic_id" },
         );
       if (!error) setInLibrary(true);
-      else alert("Gagal menambah ke library: " + error.message);
+      else alert("Failed to add to your library: " + error.message);
     }
     setLibraryLoading(false);
   };
@@ -882,12 +884,12 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     return (
       <div className="text-center py-20 text-slate-400">
         <p className="text-2xl mb-2">😵</p>
-        <p>Gagal memuat komik.</p>
+        <p>Failed to load comic.</p>
         <button
           onClick={() => navigate("home")}
           className="mt-4 text-sm underline"
         >
-          Balik ke home
+          Back to home
         </button>
       </div>
     );
@@ -916,7 +918,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
     TYPE_COLORS[displayType] ??
     TYPE_COLORS["manga"];
   const description = isManual
-    ? comic.description || "Tidak ada sinopsis."
+    ? comic.description || "No synopsis."
     : cleanDescription(comic.description, 800);
   const cover = comic.coverImage?.extraLarge || comic.coverImage?.large;
 
@@ -1109,7 +1111,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
             />
             {userRating > 0 && (
               <p className="text-xs text-(--cl-text-muted) mt-2">
-                Rating kamu:{" "}
+                Your rating:{" "}
                 <span className="text-(--cl-amber) font-semibold">
                   {userRating}/10
                 </span>
@@ -1123,7 +1125,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                 >
                   Login
                 </button>{" "}
-                untuk rating
+                to rate
               </p>
             )}
             {userRating > 0 && (
@@ -1131,7 +1133,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
                 onClick={handleDeleteRating}
                 className="text-xs text-red-500 hover:underline mt-2 cursor-pointer"
               >
-                Hapus rating
+                Delete rating
               </button>
             )}
           </div>
@@ -1205,7 +1207,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
               <p className="text-xs text-(--cl-text-muted)">
                 {totalVotes > 0
                   ? `${totalVotes.toLocaleString()} ${totalVotes === 1 ? "vote" : "votes"}`
-                  : "Belum ada votes"}
+                  : "No votes yet"}
               </p>
             </div>
             <div className="flex-1 space-y-1.5 lg:space-y-2">
@@ -1317,7 +1319,7 @@ const ComicDetail = ({ comicId, session, navigate }: ComicDetailProps) => {
 
             {comments.length === 0 ? (
               <div className="text-center py-10 text-(--cl-text-muted) text-sm">
-                Belum ada review. Jadilah yang pertama! 🎉
+                No reviews yet. Be the first! 🎉
               </div>
             ) : (
               <div className="space-y-5 lg:space-y-6">

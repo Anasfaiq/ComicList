@@ -79,9 +79,9 @@ const SearchTab = ({ session }: { session: any }) => {
       const media = data?.Page?.media || [];
       setResults(media);
       if (media.length === 0)
-        setErrorMsg("Gak ada hasil. Coba kata kunci lain.");
+        setErrorMsg("No results found. Try another keyword.");
     } catch {
-      setErrorMsg("Gagal search. Coba lagi.");
+      setErrorMsg("Search failed. Try again.");
     } finally {
       setSearching(false);
     }
@@ -122,13 +122,13 @@ const SearchTab = ({ session }: { session: any }) => {
         if (error.code === "23505") {
           setSavedIds((prev) => new Set([...prev, item.id]));
         } else {
-          setErrorMsg("Gagal menambah: " + error.message);
+          setErrorMsg("Failed to add: " + error.message);
         }
       } else {
         setSavedIds((prev) => new Set([...prev, item.id]));
       }
     } catch {
-      setErrorMsg("Terjadi error, coba lagi.");
+      setErrorMsg("An error occurred, try again.");
     }
     setSavingId(null);
   };
@@ -143,7 +143,7 @@ const SearchTab = ({ session }: { session: any }) => {
       <div className="flex gap-2 mb-4">
         <input
           type="text"
-          placeholder="Cari judul manga, manhwa, manhua..."
+          placeholder="Search manga, manhwa, manhua titles..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -189,7 +189,7 @@ const SearchTab = ({ session }: { session: any }) => {
       {results.length === 0 && !errorMsg && (
         <div className="text-center py-8 text-(--cl-text-muted) text-sm">
           <p className="text-3xl mb-2">🔍</p>
-          <p>Ketik judul komik lalu tekan Enter atau klik Search</p>
+          <p>Type a comic title then press Enter or click Search</p>
         </div>
       )}
 
@@ -241,7 +241,7 @@ const SearchTab = ({ session }: { session: any }) => {
 
       {!session && (
         <p className="text-xs text-(--cl-warning) bg-(--cl-warning-light) border border-(--cl-border) rounded-lg px-3 py-2 mt-3">
-          ⚠️ Kamu harus login untuk menambah komik ke database.
+          ⚠️ You must log in to add comics to the database.
         </p>
       )}
     </div>
@@ -275,11 +275,11 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setCoverError("File harus berupa gambar (JPG, PNG, WEBP, dsb).");
+      setCoverError("File must be an image (JPG, PNG, WEBP, etc).");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setCoverError("Ukuran file maksimal 5 MB.");
+      setCoverError("File size max 5 MB.");
       return;
     }
 
@@ -311,16 +311,16 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
     setErrorMsg("");
     setSuccessMsg("");
 
-    if (!title.trim()) return setErrorMsg("Judul wajib diisi.");
-    if (!author.trim()) return setErrorMsg("Author wajib diisi.");
-    if (!session) return setErrorMsg("Kamu harus login.");
+    if (!title.trim()) return setErrorMsg("Title is required.");
+    if (!author.trim()) return setErrorMsg("Author is required.");
+    if (!session) return setErrorMsg("You must log in.");
 
     setSubmitting(true);
 
     try {
       let cover_url: string | null = null;
 
-      // Upload cover ke Supabase Storage jika ada
+      // Upload cover to Supabase Storage if available
       if (coverFile) {
         const ext = coverFile.name.split(".").pop();
         const fileName = `manual-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -330,7 +330,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
           .upload(fileName, coverFile, { upsert: false });
 
         if (uploadErr)
-          throw new Error("Gagal upload cover: " + uploadErr.message);
+          throw new Error("Failed to upload cover: " + uploadErr.message);
 
         const { data: urlData } = supabase.storage
           .from("comic-covers")
@@ -347,13 +347,13 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
         type,
         status,
         created_by: session.user.id,
-        // genres bisa lu tambahin kalau ada kolom di table, kalau belum skip dulu
+        // You can add genres if there's a column in the table
         genres: genres.length > 0 ? genres : null,
       });
 
       if (insertErr) throw new Error(insertErr.message);
 
-      setSuccessMsg("Komik berhasil ditambahkan! 🎉");
+      setSuccessMsg("Comic successfully added! 🎉");
 
       // Reset form
       setTitle("");
@@ -365,7 +365,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
       setGenreInput("");
       handleRemoveCover();
     } catch (err: any) {
-      setErrorMsg(err.message || "Terjadi error, coba lagi.");
+      setErrorMsg(err.message || "An error occurred, try again.");
     } finally {
       setSubmitting(false);
     }
@@ -374,7 +374,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
   if (!session) {
     return (
       <p className="text-xs text-(--cl-warning) bg-(--cl-warning-light) border border-(--cl-border) rounded-lg px-3 py-2">
-        ⚠️ Kamu harus login untuk menambah komik ke database.
+        ⚠️ You must log in to add comics to the database.
       </p>
     );
   }
@@ -384,7 +384,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
       {/* Cover Upload */}
       <div>
         <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-2">
-          Cover (opsional, maks 5 MB)
+          Cover (Optional, Max 5 MB)
         </label>
 
         {coverPreview ? (
@@ -409,7 +409,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
                 onClick={handleRemoveCover}
                 className="text-xs text-(--cl-error) hover:underline text-left"
               >
-                Hapus foto
+                Delete photo
               </button>
             </div>
           </div>
@@ -437,10 +437,10 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
               <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" />
             </svg>
             <span className="text-xs text-(--cl-text-muted)">
-              Klik untuk upload gambar cover
+              Click to upload cover image
             </span>
             <span className="text-[10px] text-(--cl-text-muted) opacity-75 mt-0.5">
-              JPG, PNG, WEBP · maks 5 MB
+              JPG, PNG, WEBP · Max 5 MB
             </span>
             <input
               ref={fileInputRef}
@@ -459,7 +459,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
       {/* Title */}
       <div>
         <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
-          Judul <span className="text-(--cl-error)">*</span>
+          Title <span className="text-(--cl-error)">*</span>
         </label>
         <input
           type="text"
@@ -491,7 +491,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
         {/* Type */}
         <div className="flex-1">
           <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
-            Tipe
+            Type
           </label>
           <div className="flex gap-1.5">
             {(["manga", "manhwa", "manhua"] as const).map((t) => (
@@ -550,11 +550,11 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
       <div>
         <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
           Synopsis{" "}
-          <span className="text-(--cl-text-muted) opacity-75">(opsional)</span>
+          <span className="text-(--cl-text-muted) opacity-75">(Optional)</span>
         </label>
         <textarea
           rows={3}
-          placeholder="Tulis sinopsis singkat tentang komik ini..."
+          placeholder="Write a brief synopsis about this comic..."
           value={synopsis}
           onChange={(e) => setSynopsis(e.target.value)}
           className="w-full px-3 py-2.5 border border-(--cl-border) placeholder:text-(--cl-text) rounded-xl text-sm resize-none
@@ -566,7 +566,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
       <div>
         <label className="block text-xs font-bold text-(--cl-text-muted) uppercase tracking-wider mb-1.5">
           Genre{" "}
-          <span className="text-(--cl-text-muted) opacity-75">(opsional)</span>
+          <span className="text-(--cl-text-muted) opacity-75">(Optional)</span>
         </label>
 
         {/* Preset Chips */}
@@ -591,7 +591,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
         <div className="flex gap-2">
           <input
             type="text"
-            placeholder="Tambah genre lain..."
+            placeholder="Add another genre..."
             value={genreInput}
             onChange={(e) => setGenreInput(e.target.value)}
             onKeyDown={(e) => {
@@ -653,7 +653,7 @@ const ManualTab = ({ session }: { session: any; onClose: () => void }) => {
         className="w-full py-2.5 text-white bg-(--cl-primary) rounded-xl text-sm font-bold
                    hover:bg-(--cl-primary-hover) transition disabled:opacity-40"
       >
-        {submitting ? "Menyimpan..." : "Tambah ke Database"}
+        {submitting ? "Saving..." : "Add to Database"}
       </button>
     </div>
   );
@@ -725,7 +725,7 @@ const AddComicModal = ({ session, onClose }: AddComicModalProps) => {
               <path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
               <path d="M21 21l-6 -6" />
             </svg>
-            Cari dari AniList
+            Search from AniList
           </button>
           <button
             onClick={() => setTab("manual")}
@@ -751,7 +751,7 @@ const AddComicModal = ({ session, onClose }: AddComicModalProps) => {
               <path d="M12 5l0 14" />
               <path d="M5 12l14 0" />
             </svg>
-            Upload Manual
+            Manual Upload
           </button>
         </div>
 

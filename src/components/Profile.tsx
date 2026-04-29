@@ -44,7 +44,7 @@ const Profile = ({ session, navigate }: ProfileProps) => {
       setUploading(true);
 
       if (!event.target.files || event.target.files.length === 0) {
-        throw new Error("Pilih gambar terlebih dahulu.");
+        throw new Error("Please select an image first.");
       }
 
       const file = event.target.files[0];
@@ -74,11 +74,11 @@ const Profile = ({ session, navigate }: ProfileProps) => {
         .eq("id", session.user.id);
 
       if (updateError) {
-        console.error("Gagal update profile:", updateError);
+        console.error("Failed to update profile:", updateError);
       }
 
       setAvatarUrl(publicUrl);
-      alert("Foto profil berhasil diubah!");
+      alert("Profile picture updated successfully!");
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -106,16 +106,16 @@ const Profile = ({ session, navigate }: ProfileProps) => {
       if (error) throw error;
 
       setAvatarUrl(null);
-      alert("Foto profil berhasil dihapus!");
+      alert("Profile picture deleted successfully!");
     } catch (err: any) {
-      alert("Gagal hapus foto: " + err.message);
+      alert("Failed to delete photo: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   if (loading)
-    return <div className="p-10 text-center">Loading profile...</div>;
+    return <div className="p-10 text-center text-white">Loading profile...</div>;
 
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-(--cl-surface) border border-(--cl-border) rounded-2xl shadow-sm">
@@ -139,7 +139,7 @@ const Profile = ({ session, navigate }: ProfileProps) => {
 
           <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-(--cl-text-muted) opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
             <span className="text-xs font-semibold">
-              {uploading ? "..." : "Ubah"}
+              {uploading ? "Uploading..." : "Change"}
             </span>
             <input
               type="file"
@@ -157,7 +157,7 @@ const Profile = ({ session, navigate }: ProfileProps) => {
             onClick={handleDeleteAvatar}
             className="text-xs bg-red-600 border border-red-700 text-white px-3 py-2 rounded-lg font-semibold hover:bg-red-700 transition"
           >
-            Hapus
+            Delete Profile Picture
           </button>
         )}
 
@@ -190,7 +190,7 @@ const Profile = ({ session, navigate }: ProfileProps) => {
           onClick={() => navigate("dashboard")}
           className="w-full py-3 bg-(--cl-primary) text-white rounded-xl font-bold hover:bg-(--cl-primary-hover) transition"
         >
-          Kembali ke Dashboard
+          Back to Dashboard
         </button>
       </div>
     </div>
