@@ -340,7 +340,7 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
         {/* Logo */}
         <p
           className="font-heading text-xl font-bold shrink-0 cursor-pointer flex items-center gap-2"
-          onClick={() => navigate("home")}
+          onClick={() => navigate(session ? "home" : "about")}
         >
           <img src={logo} alt="ComicList Logo" className="h-16 w-auto" />
           <span className="lg:block hidden">ComicList</span>
@@ -552,6 +552,13 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
             </div>
           ) : (
             <>
+              <button
+                onClick={() => navigate("about")}
+                className="text-sm text-(--cl-text-muted) font-medium cursor-pointer hover:opacity-80 transition hidden sm:block"
+              >
+                About
+              </button>
+
               <span
                 onClick={() => navigate("auth")}
                 className="text-sm text-(--cl-text-muted) font-medium cursor-pointer hover:opacity-80 transition hidden sm:block"
@@ -599,6 +606,81 @@ const Navbar = ({ session, currentPage, navigate }: NavbarProps) => {
                 </button>
               );
             })}
+          </div>
+        </div>
+      )}
+      {/* bottom nav buat guest */}
+      {!session && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-(--cl-surface) border-t border-(--cl-border) lg:hidden shadow-[0_-2px_10px_rgba(0,0,0,0.09)]">
+          <div className="flex justify-around items-center h-14">
+            <button
+              onClick={() => navigate("home")}
+              className={`flex flex-col items-center justify-center text-xs ${currentPage === "home" ? "text-(--cl-text)" : "text-(--cl-text-muted)"}`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={24}
+                height={24}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
+                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+                <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+              </svg>
+              <span className="mt-0.5">Home</span>
+            </button>
+
+            <button
+              onClick={() => navigate("about")}
+              className={`flex flex-col items-center justify-center text-xs ${currentPage === "about" ? "text-(--cl-text)" : "text-(--cl-text-muted)"}`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={24}
+                height={24}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                <path d="M12 8l.01 0" />
+                <path d="M11 12l1 0l0 4l1 0" />
+              </svg>
+              <span className="mt-0.5">About</span>
+            </button>
+
+            <button
+              onClick={() => navigate("auth")}
+              className="flex flex-col items-center justify-center text-xs text-(--cl-text-muted)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={24}
+                height={24}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                <path d="M9 12h12l-3 -3" />
+                <path d="M18 15l3 -3" />
+              </svg>
+              <span className="mt-0.5">Log In</span>
+            </button>
           </div>
         </div>
       )}
