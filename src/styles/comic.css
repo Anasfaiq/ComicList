@@ -98,14 +98,14 @@
 
 .skeleton-cover {
   border-radius: 0.75rem;
-  background-color: #e2e8f0;
+  background-color: var(--cl-surface-2);
   width: 100%;
   aspect-ratio: 2 / 3;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
 .skeleton-line {
-  background-color: #e2e8f0;
+  background-color: var(--cl-surface-2);
   border-radius: 0.25rem;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
   margin-top: 0.5rem;
