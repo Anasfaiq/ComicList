@@ -15,6 +15,16 @@ html {
   transition: background-color 0.3s ease;
 }
 
+html,
+body {
+  background-color: var(--cl-bg);
+}
+
+.bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom);
+  background-color: var(--cl-surface);
+}
+
 @theme {
   /* fonts lu yang existing tetep disini */
   --font-ui: "Plus Jakarta Sans", ui-sans-serif, system-ui;

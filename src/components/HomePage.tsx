@@ -379,7 +379,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
 
   return (
     <>
-      <div className="max-w-screen-xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6 items-start w-full">
+      <div className="max-w-screen-xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6 items-start w-full bottom-nav">
         {/* Main Content  */}
         <div className="flex-1 min-w-0 w-full overflow-hidden">
           {/* Filter Tabs */}
