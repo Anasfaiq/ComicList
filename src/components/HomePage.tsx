@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { fetchFromAniList } from "../lib/anilist";
 import { QUERIES_BY_TAB } from "../lib/queries";
@@ -186,26 +186,73 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
   const [activeTab, setActiveTab] = useState<TabId>("trending");
   const [comics, setComics] = useState<Comic[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [topContributors, setTopContributors] = useState<any[]>([]);
   const [recentReviews, setRecentReviews] = useState<any[]>([]);
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const observerRef = useRef<HTMLDivElement>(null);
 
   const toggleSection = (section: string) => {
     setOpenSection((prev) => (prev === section ? null : section));
   };
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
+    setComics([]);
+    setPage(1);
+    setHasNextPage(true);
     loadTopContributors();
     loadRecentReviews();
-    fetchFromAniList(QUERIES_BY_TAB[activeTab])
-      .then((data) => setComics(data.Page.media))
-      .catch(() => setError("Gagal ngambil data. Coba refresh."))
-      .finally(() => setLoading(false));
   }, [activeTab]);
+
+  useEffect(() => {
+    if (!hasNextPage && page !== 1) return;
+
+    const isFirstPage = page === 1;
+    if (isFirstPage) setLoading(true);
+    else setLoadingMore(true);
+
+    setError(null);
+
+    fetchFromAniList(QUERIES_BY_TAB[activeTab], { page })
+      .then((data) => {
+        const newComics = data.Page.media;
+        const nextPage = data.Page.pageInfo.hasNextPage;
+        setComics((prev) =>
+          isFirstPage ? newComics : [...prev, ...newComics],
+        );
+        setHasNextPage(nextPage);
+      })
+      .catch(() => setError("Failed to fetch data. Try refreshing."))
+      .finally(() => {
+        setLoading(false);
+        setLoadingMore(false);
+      });
+  }, [activeTab, page]);
+
+  useEffect(() => {
+    if (!observerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          hasNextPage &&
+          !loadingMore &&
+          !loading
+        ) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [hasNextPage, loadingMore, loading]);
 
   const loadTopContributors = async () => {
     const { data, error } = await supabase.from("comments").select("user_id");
@@ -251,19 +298,19 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
       profiles!fk_user (username), 
       comics!fk_comic (title)
     `,
-      ) // Pakai nama constraint yang ada di foto lu tadi
+      )
       .order("created_at", { ascending: false })
       .limit(5);
 
     if (error) {
-      console.error("Gagal get recent reviews:", error.message);
+      console.error("Failed to fetch recent reviews:", error.message);
       return;
     }
 
     if (!data) return;
 
     const result = data.map((r: any) => ({
-      // Cek apakah r.profiles itu object atau array, biasanya object kalau many-to-one
+      // Check if r.profiles is object or array, usually object for many-to-one
       user_id: r.user_id,
       user: r.profiles?.username || r.profiles?.[0]?.username || "Unknown",
       title: r.comics?.title || r.comics?.[0]?.title || "Unknown",
@@ -287,7 +334,7 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
     const isOpen = openSection === id;
 
     return (
-      <div className="bg-(--cl-bg) border border-(--cl-border) 100 rounded-2xl">
+      <div className="bg-(--cl-bg) border border-(--cl-border) rounded-2xl w-full">
         <button
           onClick={() => toggleSection(id)}
           className="w-full flex items-center justify-between p-4"
@@ -332,9 +379,9 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
 
   return (
     <>
-      <div className="max-w-screen-xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6">
+      <div className="max-w-screen-xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6 items-start w-full">
         {/* Main Content  */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 w-full overflow-hidden">
           {/* Filter Tabs */}
           <div className="tab-bar flex gap-2 mb-2 overflow-auto scroll-smooth">
             {TABS.map((tab) => (
@@ -353,6 +400,81 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
             ))}
           </div>
 
+          <div className="lg:hidden flex flex-col gap-4 mb-4">
+            <div className="bg-(--cl-surface) text-(--cl-text) rounded-2xl p-5">
+              <div className="text-2xl mb-3">+</div>
+              <h3 className="font-bold text-base mb-1">Can't find a title?</h3>
+              <p className="text-(--cl-text-muted) text-sm mb-4 leading-relaxed">
+                Help grow our database by adding new manga, manhwa, or manhua.
+              </p>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="w-full bg-(--cl-primary) text-white font-semibold py-2 rounded-lg text-sm
+                         hover:bg-(--cl-primary-hover) transition"
+              >
+                Add to Database
+              </button>
+            </div>
+
+            {/* Top Contributors */}
+            <AccordionSection
+              id="contributors"
+              title="Top Contributors"
+              icon={sidebarIcons.thropy}
+            >
+              <div className="space-y-3">
+                {topContributors.map((c) => (
+                  <div key={c.rank} className="flex items-start gap-3">
+                    <span className="text-xs text-(--cl-text-muted) pt-0.5 w-5">
+                      #{c.rank}
+                    </span>
+                    <div>
+                      <p
+                        className="text-sm font-semibold text-(--cl-text) hover:underline cursor-pointer"
+                        onClick={() =>
+                          navigate("user-profile", undefined, c.id)
+                        }
+                      >
+                        {c.name}
+                      </p>
+                      <p className="text-xs text-(--cl-text-muted)">
+                        {c.reviews} reviews
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </AccordionSection>
+
+            {/* Recent Reviews */}
+            <AccordionSection
+              id="reviews"
+              title="Recent Reviews"
+              icon={sidebarIcons.bubble}
+            >
+              <div className="space-y-4">
+                {recentReviews.map((r, i) => (
+                  <div key={i}>
+                    <p
+                      className="text-xs text-(--cl-text-muted) mb-0.5 cursor-pointer hover:underline"
+                      onClick={() =>
+                        navigate("user-profile", undefined, r.user_id)
+                      }
+                    >
+                      {r.user} reviewed
+                    </p>
+                    <p className="text-sm font-semibold text-(--cl-text)">
+                      {r.title}
+                    </p>
+                    <p className="text-xs text-(--cl-text-muted) line-clamp-2">
+                      ⭐ {r.score}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </AccordionSection>
+          </div>
+
           {/* Error */}
           {error && (
             <div className="text-center py-16 text-(--cl-text-muted)">
@@ -362,24 +484,44 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
 
           {/* Comic Grid */}
           {!error && (
-            <div className="comic-grid">
-              {loading
-                ? Array.from({ length: 8 }).map((_, i) => (
+            <>
+              <div className="comic-grid">
+                {loading
+                  ? Array.from({ length: 8 }).map((_, i) => (
+                      <SkeletonCard key={i} />
+                    ))
+                  : comics.map((comic) => (
+                      <ComicCard
+                        key={comic.id}
+                        comic={comic}
+                        onClick={() => navigate("detail", comic.id)}
+                      />
+                    ))}
+              </div>
+
+              {/* Trigger infinite scroll */}
+              <div ref={observerRef} className="h-4" />
+
+              {/* Loading more indicator */}
+              {loadingMore && (
+                <div className="comic-grid mt-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
                     <SkeletonCard key={i} />
-                  ))
-                : comics.map((comic) => (
-                    <ComicCard
-                      key={comic.id}
-                      comic={comic}
-                      onClick={() => navigate("detail", comic.id)}
-                    />
                   ))}
-            </div>
+                </div>
+              )}
+
+              {!hasNextPage && comics.length > 0 && (
+                <p className="text-center text-(--cl-text-muted) text-sm py-6">
+                  You’ve reached the end
+                </p>
+              )}
+            </>
           )}
         </div>
 
         {/* Sidebar */}
-        <aside className="w-full lg:w-64 shrink-0 flex flex-col gap-4">
+        <aside className="hidden lg:flex w-64 shrink-0 flex-col gap-4 sticky top-20">
           <div className="bg-(--cl-surface) text-(--cl-text) rounded-2xl p-5">
             <div className="text-2xl mb-3">+</div>
             <h3 className="font-bold text-base mb-1">Can't find a title?</h3>
@@ -434,7 +576,9 @@ const HomePage = ({ navigate, session }: HomePageProps) => {
                 <div key={i}>
                   <p
                     className="text-xs text-(--cl-text-muted) mb-0.5 cursor-pointer hover:underline"
-                    onClick={() => navigate("user-profile", undefined, r.user_id)}
+                    onClick={() =>
+                      navigate("user-profile", undefined, r.user_id)
+                    }
                   >
                     {r.user} reviewed
                   </p>

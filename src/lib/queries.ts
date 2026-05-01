@@ -15,8 +15,11 @@ const MEDIA_FIELDS = `
 `;
 
 const buildPageQuery = (sort: string, extraFilters = "") => `
-  query {
-    Page(page: 1, perPage: 8) {
+  query ($page: Int) {
+    Page(page: $page, perPage: 8) {
+      pageInfo {
+        hasNextPage
+      }
       media(
         sort: [${sort}]
         type: MANGA
