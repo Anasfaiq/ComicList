@@ -22,7 +22,6 @@ body {
 
 .bottom-nav {
   padding-bottom: env(safe-area-inset-bottom);
-  background-color: var(--cl-surface);
 }
 
 @theme {
