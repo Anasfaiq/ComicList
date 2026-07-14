@@ -2,23 +2,16 @@ name: Supabase Keep Alive
 
 on:
   schedule:
-    - cron: '0 0 */3 * *' # Jalan tiap 3 hari sekali
-  workflow_dispatch: # Biar bisa di-klik manual
+    - cron: '0 0 */3 * *'
+  workflow_dispatch:
 
 jobs:
   ping-supabase:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Kirim Komen Dummy ke Supabase via cURL
+      - name: Ping Read Data Komik via cURL (Keep Alive)
         run: |
-          curl -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/comments" \
+          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/comics?select=id&limit=1" \
           -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-          -H "Content-Type: application/json" \
-          -H "Prefer: return=minimal" \
-          -d '{
-            "comic_id": "93af5775-3cb0-4fac-b0be-e5c49f2b2585",
-            "user_id": "50678893-5a24-479e-b66e-3d9ba540bcb0",
-            "content": "Ping otomatis dari GitHub Actions"
-          }'
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
